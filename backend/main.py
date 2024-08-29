@@ -44,5 +44,12 @@ def handle_delete_project():
     status, code = delete_project(name)
     return {'data':str(status)}, code
 
+@app.route('/get_project_config', methods=['POST'])
+def handle_get_project_config():
+    name = request.json['data']
+    with open(f'./project_files/{name}/config.json', 'r') as f:
+        data = json.load(f)
+    return {'data':data}
+
 if __name__ == '__main__':
     app.run()

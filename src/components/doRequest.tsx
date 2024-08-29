@@ -25,6 +25,7 @@ const doRequest = async ({url, reqmethod='POST', data={"data":"NONE"}}:reqProps)
         return responseData;
     } catch (error) {
         console.error('Error:', error);
+        alert('Error:' + error)
         throw error;
     }
 }

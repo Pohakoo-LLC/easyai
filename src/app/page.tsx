@@ -24,7 +24,13 @@ export default function Home() {
     const handleCreateNewProject = () => {
         setNewProjectResult(reqStatus.waiting)
         doRequest({url: 'new_project', data: {"data":projectName}})
-        .then((res) => {setNewProjectResult(res['data'])})
+        .then((res) => {
+            setNewProjectResult(res['data']);
+            if (res['data'] === "completed") {
+                window.location.href = `/project?id=${projectName}`;
+            }
+        })
+        .catch((err) => {alert(err);return})
     }
 
     const handleDeleteProject = (projectName:string) => {
@@ -85,7 +91,10 @@ export default function Home() {
                                                 {
                                                     projects.map((project, key) => {
                                                         return (
-                                                            <div className="flex w-full h-fit text-center items-center px-2 py-0.5 bg-gray-700 cursor-pointer duration-100 hover:bg-gray-600" key={key}>
+                                                            <div className="flex w-full h-fit text-center items-center px-2 py-0.5 bg-gray-700 cursor-pointer duration-100 hover:bg-gray-600" key={key} onClick={(target) => {
+                                                                if ((target as any).target.tagName === 'svg' || (target as any).target.tagName === 'path') return;
+                                                                window.location.href = `/project?id=${project}`;
+                                                            }}>
                                                                 {project}
                                                                 <FontAwesomeIcon icon={faTrash} className="ml-auto opacity-50 duration-100 hover:opacity-75" onClick={()=>{handleDeleteProject(project)}} />
                                                             </div>

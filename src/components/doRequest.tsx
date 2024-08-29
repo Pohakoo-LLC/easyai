@@ -1,10 +1,10 @@
 interface reqProps {
     url: string;
-    data?: any;
+    data?: {'data': string|any[]|any};
     reqmethod?: 'GET'|'POST';
 }
 
-const doRequest = async ({url, reqmethod='POST', data={}}:reqProps) => {
+const doRequest = async ({url, reqmethod='POST', data={"data":"NONE"}}:reqProps) : Promise<{"data":any}> => {
     const BACKEND_URL = 'http://127.0.0.1:5000/'
 
     if (!(url.startsWith('http://') || url.startsWith('https://'))) {
@@ -30,3 +30,10 @@ const doRequest = async ({url, reqmethod='POST', data={}}:reqProps) => {
 }
 
 export default doRequest
+export enum reqStatus {
+    unsent = "unsent",
+    waiting = "waiting",
+    completed = "completed",
+    error = "error"
+    
+}

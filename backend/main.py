@@ -15,7 +15,10 @@ def new_project(project_name: str):
     try:
         os.mkdir(f'./project_files/{project_name}')
         with open(f'./project_files/{project_name}/config.json', 'w') as f:
-            json.dump({'name': project_name}, f)
+            json.dump({
+                'name': project_name,
+                "hidden_layers": [{"nodes": 100, "type":"Dense"}]
+            }, f)
         return "completed", 200
     except OSError or PermissionError as e:
         return f"Error: {e}", 500
@@ -50,6 +53,13 @@ def handle_get_project_config():
     with open(f'./project_files/{name}/config.json', 'r') as f:
         data = json.load(f)
     return {'data':data}
+
+@app.route('/set_project_config', methods=['POST'])
+def handle_set_project_config():
+    data = request.json['data']
+    with open(f'./project_files/{data['name']}/config.json', 'w') as f:
+        json.dump(data, f)
+    return {'data':'completed'}
 
 if __name__ == '__main__':
     app.run()

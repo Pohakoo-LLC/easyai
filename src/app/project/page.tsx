@@ -46,8 +46,11 @@ enum OutputTypes {
 }
 
 const Project: FC<ProjectProps> = () => {
-  const searchParams = useSearchParams();
-  const id = searchParams.get('id') || '';
+  const [searchParams, setSearchParams] = useState<URLSearchParams|undefined>(undefined);
+  useEffect(() => {
+    setSearchParams(new URLSearchParams(window.location.search));
+  }, []);
+  const id = searchParams?.get('id') || '';
   const [projectConfig, setProjectConfig] = useState<{
     "name": string,
     "hidden_layers": {"nodes": number, "type": LayerTypes}[],

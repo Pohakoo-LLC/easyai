@@ -40,3 +40,4 @@ next-env.d.ts
 
 # misc
 /backend/project_files/
+/project_files/

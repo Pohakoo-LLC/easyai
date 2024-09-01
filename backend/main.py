@@ -7,11 +7,19 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+def create_project_files():
+    try:
+        os.mkdir('./project_files')
+    except OSError:
+        pass
+
 def get_projects() -> list[str]:
+    create_project_files()
     files = os.listdir('./project_files')
     return files
 
 def new_project(project_name: str):
+    create_project_files()
     try:
         os.mkdir(f'./project_files/{project_name}')
         with open(f'./project_files/{project_name}/config.json', 'w') as f:
@@ -24,6 +32,7 @@ def new_project(project_name: str):
         return f"Error: {e}", 500
     
 def delete_project(project_name: str):
+    create_project_files()
     try:
         shutil.rmtree(f'./project_files/{project_name}')
         return "completed", 200
@@ -57,7 +66,8 @@ def handle_get_project_config():
 @app.route('/set_project_config', methods=['POST'])
 def handle_set_project_config():
     data = request.json['data']
-    with open(f'./project_files/{data['name']}/config.json', 'w') as f:
+    name = data['name']
+    with open(f'./project_files/{name}/config.json', 'w') as f:
         json.dump(data, f)
     return {'data':'completed'}
 

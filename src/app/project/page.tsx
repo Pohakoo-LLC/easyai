@@ -15,6 +15,7 @@ import colorImg from '@/../public/ColImage.png'
 import identification from '@/../public/Identification.png'
 import script from '@/../public/Script.png'
 import text from '@/../public/TextToHDVector.png'
+import LayerCustomizer, { listToString } from '@/components/layerCustomizer';
 
 interface ProjectProps {
   params: {
@@ -22,11 +23,10 @@ interface ProjectProps {
   };
 }
 
-enum LayerTypes {
+export enum LayerTypes {
     dense = "Dense",
     conv = "Convolution",
     pooling = "Max pooling",
-    unsampling = "Unsampling",
 }
 
 enum InputTypes {
@@ -48,15 +48,9 @@ enum OutputTypes {
     other = "Other"
 }
 
-const Project: FC<ProjectProps> = () => {
-  const [searchParams, setSearchParams] = useState<URLSearchParams|undefined>(undefined);
-  useEffect(() => {
-    setSearchParams(new URLSearchParams(window.location.search));
-  }, []);
-  const id = searchParams?.get('id') || '';
-  const [projectConfig, setProjectConfig] = useState<{
+export type projConfigType = {
     "name": string,
-    "hidden_layers": {"nodes": number, "type": LayerTypes, "config"?: {"filters"?: number, "size"?: number[], "activation"?: "sig"|"ReLU"|"linear"|"Softmax", "transpose"?: boolean, "dimensions"?: number}}[],
+    "hidden_layers": {"size": number[], "type": LayerTypes, "config"?: {"filters"?: number, "activation"?: "sig"|"ReLU"|"linear"|"Softmax", "transpose"?: boolean}}[],
     "input"?: {
         "type":InputTypes,
         "size"?: number
@@ -66,35 +60,28 @@ const Project: FC<ProjectProps> = () => {
         "size"?: number
     },
     "training_data_path"?: string
-  }>({"name": id, "hidden_layers": [{"nodes": 0, "type":LayerTypes.dense}]});
+  }
+
+const Project: FC<ProjectProps> = () => {
+  const [searchParams, setSearchParams] = useState<URLSearchParams|undefined>(undefined);
+  useEffect(() => {
+    setSearchParams(new URLSearchParams(window.location.search));
+  }, []);
+  const id = searchParams?.get('id') || '';
+  const [projectConfig, setProjectConfig] = useState<projConfigType>({"name": id, "hidden_layers": [{"size": [100], "type":LayerTypes.dense}]});
 
   const handleFunction = (param: string) => {
     doRequest({ url: 'get_project_config', reqmethod: 'POST', data: { data: param } })
     .then((data) => {
       setProjectConfig(data['data']);
       if (!projectConfig.hidden_layers) {
-        projectConfig.hidden_layers = [{"nodes": 100, "type":LayerTypes.dense}]
+        projectConfig.hidden_layers = [{"size": [100], "type":LayerTypes.dense}]
       }
       if (!projectConfig.input) {
         projectConfig.input = {"type":InputTypes.id}
       }
     });
   };
-
-  function insertLayer(key: number, defaultNodes:number = 100) {
-    let newConfig = projectConfig;
-    newConfig.hidden_layers.splice(key, 0, {"nodes": defaultNodes, "type": LayerTypes.dense});
-    setProjectConfig({...newConfig});
-  }
-  function deleteLayer(key: number) {
-    let newConfig = projectConfig;
-    if (newConfig.hidden_layers.length > 1) {
-        newConfig.hidden_layers.splice(key, 1);
-        setProjectConfig({...newConfig});
-    }
-  }
-
-  const LayerTypesList = Object.values(LayerTypes)
 
   useEffect(() => {
     if (id) {
@@ -122,14 +109,16 @@ const Project: FC<ProjectProps> = () => {
                                 newConfig.input = {"type": target.value as InputTypes};
                                 setProjectConfig({...newConfig});
                             }}>
-                                <option value={undefined}>Select</option>
-                                <option value="colorImage">Color Image</option>
-                                <option value="bwImage">Black and White Image</option>
-                                <option value="audio">Audio</option>
-                                <option value="text">Text</option>
-                                <option value="id">Identification</option>
-                                <option value="output_based">Function of the output</option>
-                                <option value="other">Other</option>
+                                <>
+                                    <option value={undefined}>Select</option>
+                                    {
+                                        Object.values(InputTypes).map((inputType, id)=> {
+                                            return (
+                                                <option value={inputType} key={id}>{inputType}</option>
+                                            )
+                                        })
+                                    }
+                                </>
                             </select>
                         </div>
                         <div className='flex justify-center w-full'>{`Training data path: `}
@@ -166,130 +155,11 @@ const Project: FC<ProjectProps> = () => {
                                 <img src={network.src} className='h-[90%] duration-200'/>
                                 <Popover>
                                     <PopoverButton className='h-[full] w-[65px] flex items-center justify-center text-center hover:opacity-50 cursor-pointer outline-none'>
-                                        {layerData.nodes}
-                                        <FontAwesomeIcon icon={faPlay} className='w-full -ml-5 -mr-6 scale-75 rotate-90'/>
+                                        <FontAwesomeIcon icon={faPlay} className='w-3 mr-1 scale-75 rotate-90'/>
+                                        <div>{listToString(layerData.size)}</div>
                                     </PopoverButton>
-                                    <PopoverPanel className="absolute z-10 text-black">
-                                        <div className="px-2 py-1 bg-white border rounded mt-2 shadow block justify-center space-y-0.5">
-                                            <div className='flex justify-center w-full font-semibold mb-2'>{`Hidden layer ${key+1}`}</div>
-                                            <div className='flex justify-center w-full'>{`Number of nodes: `}
-                                                <input type='text' maxLength={6} className='rounded border border-gray-400 ml-2 w-[4em] px-1' value={projectConfig.hidden_layers[key].nodes} onChange={(t) => {
-                                                    const target = t.target as HTMLInputElement;
-                                                    target.value = target.value.replace(/[^0-9]/g, '');
-                                                    let newConfig = projectConfig;
-                                                    newConfig.hidden_layers[key].nodes = parseInt(target.value) ? parseInt(target.value) : 0;
-                                                    setProjectConfig({...newConfig});
-                                                }}/>
-                                            </div>
-                                            {/* dropdown for type of layer */}
-                                            <div className='flex justify-center w-full'>{`Type: `}
-                                                <select className='rounded border border-gray-400 ml-2 w-fit min-w-[5em] px-1' value={projectConfig.hidden_layers[key].type} onChange={(t) => {
-                                                    const target = t.target as HTMLSelectElement;
-                                                    let newConfig = projectConfig;
-                                                    newConfig.hidden_layers[key].type = target.value as LayerTypes;
-                                                    setProjectConfig({...newConfig});
-                                                }}>
-                                                    {
-                                                        LayerTypesList.map((layerType, key)=> {
-                                                            return (
-                                                                <option value={layerType} key={key}>{layerType}</option>
-                                                            )
-                                                        })
-                                                    }
-                                                </select>
-                                            </div>
-                                            <div className='flex justify-center max-w-full space-x-2'>
-                                                <>
-                                                    {
-                                                        projectConfig.hidden_layers[key].type == LayerTypes.conv &&
-                                                        <div className='flex justify-center w-full'>{`Filters: `}
-                                                            <input type='text' maxLength={6} className='rounded border border-gray-400 ml-1 w-[4em] px-1' value={projectConfig.hidden_layers[key].config?.filters} onChange={(t) => {
-                                                                const target = t.target as HTMLInputElement;
-                                                                target.value = target.value.replace(/[^0-9]/g, '');
-                                                                let newConfig = projectConfig;
-                                                                if (!newConfig.hidden_layers[key].config) {
-                                                                    newConfig.hidden_layers[key].config = {};
-                                                                }
-                                                                newConfig.hidden_layers[key].config.filters = parseInt(target.value) ? parseInt(target.value) : 0;
-                                                                setProjectConfig({...newConfig});
-                                                            }}/>
-                                                        </div>
-                                                    }
-                                                    {
-                                                        projectConfig.hidden_layers[key].type == LayerTypes.conv || projectConfig.hidden_layers[key].type == LayerTypes.pooling || projectConfig.hidden_layers[key].type == LayerTypes.unsampling &&
-                                                        <div className='flex justify-center w-full'>{`Size: `}
-                                                            <input type='text' maxLength={6} className='rounded border border-gray-400 ml-1 w-[4em] px-1' value={projectConfig.hidden_layers[key].config?.size?.join(",")} onChange={(t) => {
-                                                                const target = t.target as HTMLInputElement;
-                                                                let newConfig = projectConfig;
-                                                                if (!newConfig.hidden_layers[key].config) {
-                                                                    newConfig.hidden_layers[key].config = {};
-                                                                }
-                                                                newConfig.hidden_layers[key].config.size = target.value.split(",").map((val) => {
-                                                                    return parseInt(val) ? parseInt(val) : 0;
-                                                                });
-                                                                setProjectConfig({...newConfig});
-                                                            }}/>
-                                                        </div>
-                                                    }
-                                                    {
-                                                        projectConfig.hidden_layers[key].type == LayerTypes.conv &&
-                                                        <div className='flex justify-center w-full'>{`Activation: `}
-                                                            <select className='rounded border border-gray-400 ml-1 w-fit min-w-[5em] px-1' value={projectConfig.hidden_layers[key].config?.activation} onChange={(t) => {
-                                                                const target = t.target as HTMLSelectElement;
-                                                                let newConfig = projectConfig;
-                                                                if (!newConfig.hidden_layers[key].config) {
-                                                                    newConfig.hidden_layers[key].config = {};
-                                                                }
-                                                                newConfig.hidden_layers[key].config.activation = target.value as "sig"|"ReLU"|"linear"|"Softmax";
-                                                                setProjectConfig({...newConfig});
-                                                            }}>
-                                                                <option value={undefined}>Select</option>
-                                                                <option value="sig">Sigmoid</option>
-                                                                <option value="ReLU">ReLU</option>
-                                                                <option value="linear">Linear</option>
-                                                                <option value="Softmax">Softmax</option>
-                                                            </select>
-                                                        </div>
-                                                    }
-                                                    {
-                                                        projectConfig.hidden_layers[key].type == LayerTypes.conv &&
-                                                        <div className='flex justify-center w-full'>{`Dimensions: `}
-                                                            <input type='text' maxLength={6} className='rounded border border-gray-400 ml-1 w-[4em] px-1' value={projectConfig.hidden_layers[key].config?.dimensions} onChange={(t) => {
-                                                                const target = t.target as HTMLInputElement;
-                                                                target.value = target.value.replace(/[^0-9]/g, '');
-                                                                let newConfig = projectConfig;
-                                                                if (!newConfig.hidden_layers[key].config) {
-                                                                    newConfig.hidden_layers[key].config = {};
-                                                                }
-                                                                newConfig.hidden_layers[key].config.dimensions = parseInt(target.value) ? parseInt(target.value) : 0;
-                                                                setProjectConfig({...newConfig});
-                                                            }}/>
-                                                        </div>
-                                                    }
-                                                    {
-                                                        projectConfig.hidden_layers[key].type == LayerTypes.conv &&
-                                                        <div className='flex justify-center w-full'>{`Transpose: `}
-                                                            <input type='checkbox' className='rounded border border-gray-400 w-5 ml-1 px-1' checked={projectConfig.hidden_layers[key].config?.transpose} onChange={(t) => {
-                                                                const target = t.target as HTMLInputElement;
-                                                                let newConfig = projectConfig;
-                                                                if (!newConfig.hidden_layers[key].config) {
-                                                                    newConfig.hidden_layers[key].config = {};
-                                                                }
-                                                                newConfig.hidden_layers[key].config.transpose = target.checked;
-                                                                setProjectConfig({...newConfig});
-                                                            }}/>
-                                                        </div>
-                                                    }
-                                                </>
-                                            </div>
-                                            <div className='flex justify-center w-full h-fit space-x-1'>
-                                                <Button className='px-1' variation={3} onClick={()=>{insertLayer(key-1, layerData.nodes)}}>Add layer before</Button>
-                                                <Button className='px-1' variation={3} onClick={()=>{insertLayer(key+1, layerData.nodes)}}>Add layer after</Button>
-                                            </div>
-                                            <div className='flex justify-center w-full h-fit space-x-1 pt-1'>
-                                                <Button className='px-1' variation={3} onClick={()=>{deleteLayer(key)}} enabled={projectConfig.hidden_layers.length > 1}>Remove</Button>
-                                            </div>
-                                        </div>
+                                    <PopoverPanel className="absolute z-10 text-black w-fit">
+                                        <LayerCustomizer projectConfig={projectConfig} setProjectConfig={setProjectConfig} layerData={layerData} id={key} />
                                     </PopoverPanel>
                                 </Popover>
                             </div>
@@ -318,12 +188,13 @@ const Project: FC<ProjectProps> = () => {
                                 setProjectConfig({...newConfig});
                             }}>
                                 <option value={undefined}>Select</option>
-                                <option value="colorImage">Color Image</option>
-                                <option value="bwImage">Black and White Image</option>
-                                <option value="audio">Audio</option>
-                                <option value="text">Text</option>
-                                <option value="id">Identification</option>
-                                <option value="other">Other</option>
+                                {
+                                    Object.values(OutputTypes).map((outputType, id)=> {
+                                        return (
+                                            <option value={outputType} key={id}>{outputType}</option>
+                                        )
+                                    })
+                                }
                             </select>
                         </div>
                     </PopoverPanel>

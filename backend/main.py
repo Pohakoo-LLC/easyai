@@ -25,7 +25,7 @@ def new_project(project_name: str):
         with open(f'./project_files/{project_name}/config.json', 'w') as f:
             json.dump({
                 'name': project_name,
-                "hidden_layers": [{"nodes": 100, "type":"Dense"}]
+                "hidden_layers": [{"size": [100], "type":"Dense"}]
             }, f)
         return "completed", 200
     except OSError or PermissionError as e:

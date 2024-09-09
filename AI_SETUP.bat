@@ -9,30 +9,18 @@ if not defined python_version (
     echo Python is not installed.
     cmd /k
 ) else (
-    echo Python 3.12.4 is installed.
+    echo Python is installed.
 )
 
-:: Check if Node.js is installed and get the version
-for /f "tokens=3" %%i in ('node --version 2^>nul') do set "node_version=%%i"
+:: Check if Node.js is installed
+for /f "tokens=2 delims= " %%i in ('node -v 2^>^&1') do set "node_version=%%i"
 
 :: Check if Node.js (and NPM) is installed
 if not defined node_version (
-    echo Node.js is not installed. Downloading and installing Node.js...
-    :: Set the download URL for Node.js installer
-    set "node_installer=https://nodejs.org/dist/v18.17.1/node-v18.17.1-x64.msi"
-
-    :: Download Node.js installer using PowerShell
-    powershell -Command "Invoke-WebRequest -Uri '%node_installer%' -OutFile node_installer.msi"
-
-    :: Install Node.js silently
-    msiexec /i node_installer.msi /quiet /norestart
-
-    :: Clean up installer file
-    del node_installer.msi
-
-    echo Node.js and NPM installation completed.
+    echo Node.js is not installed.
+    pause
 ) else (
-    echo Node.js version %node_version% is already installed.
+    echo Node.js is installed.
 )
 
 :: Create a virtual environment

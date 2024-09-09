@@ -20,6 +20,7 @@ export default function Home() {
             setProjectsList(data['data'])
         })
     }, [])
+    
 
     const handleCreateNewProject = () => {
         setNewProjectResult(reqStatus.waiting)

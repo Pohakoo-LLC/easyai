@@ -65,6 +65,14 @@ const Project: FC<ProjectProps> = () => {
   const [searchParams, setSearchParams] = useState<URLSearchParams|undefined>(undefined);
   useEffect(() => {
     setSearchParams(new URLSearchParams(window.location.search));
+    if (process.env.NODE_ENV !== 'development') {
+        window.addEventListener('beforeunload', function (e) {
+            // Prevent the default action (page close)
+            e.preventDefault();
+            // Custom message (browsers often ignore it and show their own message)
+            e.returnValue = 'Are you sure you want to exit? You will lose unsaved changes.';
+        });
+    }
   }, []);
   const id = searchParams?.get('id') || '';
   const [projectConfig, setProjectConfig] = useState<projConfigType>({"name": id, "hidden_layers": [{"size": [100], "type":LayerTypes.dense}]});

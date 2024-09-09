@@ -3,8 +3,6 @@
 import { FC, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import doRequest from '@/components/doRequest';
-import network from '@/../public/Network.svg'
-import nodes from '@/../public/NetworkNodes.svg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
@@ -16,6 +14,7 @@ import identification from '@/../public/Identification.png'
 import script from '@/../public/Script.png'
 import text from '@/../public/TextToHDVector.png'
 import LayerCustomizer, { listToString } from '@/components/layerCustomizer';
+import NetImg from '@/components/networkImg';
 
 interface ProjectProps {
   params: {
@@ -143,16 +142,17 @@ const Project: FC<ProjectProps> = () => {
             </div>
             <div className='flex h-[50vh] w-fit items-center'>
                 <div className='block h-full'>
-                    <img src={network.src} className='h-[90%] duration-200'/>
+                    <NetImg className='h-[90%] duration-200'/>
                     <div className='h-[full] w-[65px] flex items-center justify-center text-center'>
                         Input
                     </div>
                 </div>
                 {
                     projectConfig.hidden_layers?.map((layerData, key)=>{
+                        const type = layerData.type
                         return (
                             <div className='block h-full' key={key}>
-                                <img src={network.src} className='h-[90%] duration-200'/>
+                                <NetImg className='h-[90%] duration-200' color={type === LayerTypes.conv ? 'yellow' : type === LayerTypes.pooling ? 'green' : 'white'}/>
                                 <Popover>
                                     <PopoverButton className='h-[full] w-[65px] flex items-center justify-center text-center hover:opacity-50 cursor-pointer outline-none'>
                                         <FontAwesomeIcon icon={faPlay} className='w-3 mr-1 scale-75 rotate-90'/>
@@ -167,7 +167,8 @@ const Project: FC<ProjectProps> = () => {
                     })
                 }
                 <div className='block h-full'>
-                    <img src={nodes.src} className='h-[90%] duration-200'/>
+                    {/* <img src={nodes.src} className='h-[90%] duration-200'/> */}
+                    <NetImg className='h-[90%] duration-200' version='nodes'/>
                     <div className='h-[full] w-[65px] flex items-center justify-center text-center'>
                         Output
                     </div>

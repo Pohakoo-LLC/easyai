@@ -34,8 +34,8 @@ export default function LayerCustomizer({setProjectConfig, projectConfig, id, la
         <div className="w-full px-2 py-1 bg-white border rounded mt-2 shadow block justify-center space-y-0.5">
             <div className='flex justify-center w-full font-semibold mb-2'>{`Hidden layer ${id+1}`}</div>
             <div className='w-full flex justify-center'>
-                <div className="whitespace-nowrap">Dimensions (seperate with comma): </div>
-                <input type='text' 
+                <div className="whitespace-nowrap">Dimensions (x,y): </div>
+                <input type='text'
                     maxLength={50} 
                     className='rounded border border-gray-400 ml-2 w-[10em] text-center px-1' 
                     value={listToString(projectConfig.hidden_layers[id].size)}
@@ -102,20 +102,6 @@ export default function LayerCustomizer({setProjectConfig, projectConfig, id, la
                                 <option value="linear">Linear</option>
                                 <option value="Softmax">Softmax</option>
                             </select>
-                        </div>
-                    }
-                    {
-                        projectConfig.hidden_layers[id]?.type == LayerTypes.conv &&
-                        <div className='flex justify-center w-full'>{`Transpose: `}
-                            <input type='checkbox' className='rounded border border-gray-400 w-5 ml-1 px-1' checked={projectConfig.hidden_layers[id].config?.transpose} onChange={(t) => {
-                                const target = t.target as HTMLInputElement;
-                                let newConfig = projectConfig;
-                                if (!newConfig.hidden_layers[id].config) {
-                                    newConfig.hidden_layers[id].config = {};
-                                }
-                                newConfig.hidden_layers[id].config.transpose = target.checked;
-                                setProjectConfig({...newConfig});
-                            }}/>
                         </div>
                     }
                 </>

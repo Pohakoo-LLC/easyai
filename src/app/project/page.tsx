@@ -27,6 +27,7 @@ export enum LayerTypes {
     dense = "Dense",
     conv = "Convolution",
     pooling = "Max pooling",
+    upsampling = "Upsampling"
 }
 
 enum InputTypes {
@@ -50,7 +51,7 @@ enum OutputTypes {
 
 export type projConfigType = {
     "name": string,
-    "hidden_layers": {"size": number[], "type": LayerTypes, "config"?: {"filters"?: number, "activation"?: "sig"|"ReLU"|"linear"|"Softmax", "transpose"?: boolean}}[],
+    "hidden_layers": {"size": number[], "type": LayerTypes, "config"?: {"filters"?: number, "activation"?: "sig"|"ReLU"|"linear"|"Softmax"}}[],
     "input"?: {
         "type":InputTypes,
         "size"?: number
@@ -144,7 +145,7 @@ const Project: FC<ProjectProps> = () => {
             <div className='flex h-[50vh] w-fit items-center'>
                 <div className='block h-full'>
                     <img src={network.src} className='h-[90%] duration-200'/>
-                    <div className='h-[full] w-[65px] flex items-center justify-center text-center'>
+                    <div className='h-fit w-[8vh] flex items-center justify-center text-center'>
                         Input
                     </div>
                 </div>
@@ -154,9 +155,9 @@ const Project: FC<ProjectProps> = () => {
                             <div className='block h-full' key={key}>
                                 <img src={network.src} className='h-[90%] duration-200'/>
                                 <Popover>
-                                    <PopoverButton className='h-[full] w-[65px] flex items-center justify-center text-center hover:opacity-50 cursor-pointer outline-none'>
-                                        <FontAwesomeIcon icon={faPlay} className='w-3 mr-1 scale-75 rotate-90'/>
-                                        <div>{listToString(layerData.size)}</div>
+                                    <PopoverButton className='h-fit w-[8vh] flex items-center justify-center text-center hover:opacity-50 cursor-pointer outline-none'>
+                                        <FontAwesomeIcon icon={faPlay} className='w-3 scale-75 rotate-90'/>
+                                        <div className='ml-1'>{listToString(layerData.size)}</div>
                                     </PopoverButton>
                                     <PopoverPanel className="absolute z-10 text-black w-fit">
                                         <LayerCustomizer projectConfig={projectConfig} setProjectConfig={setProjectConfig} layerData={layerData} id={key} />
@@ -168,7 +169,7 @@ const Project: FC<ProjectProps> = () => {
                 }
                 <div className='block h-full'>
                     <img src={nodes.src} className='h-[90%] duration-200'/>
-                    <div className='h-[full] w-[65px] flex items-center justify-center text-center'>
+                    <div className='h-fit w-[8vh] flex items-center justify-center text-center'>
                         Output
                     </div>
                 </div>

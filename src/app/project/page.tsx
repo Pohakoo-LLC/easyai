@@ -102,11 +102,11 @@ const Project: FC<ProjectProps> = () => {
         <div className='w-full h-fit flex items-center justify-center text-xl font-semibold p-5'>
             {`Setup for ${id}`}
         </div>
-        <div className='flex mt-20 w-full justify-center items-center'>
+        <div className='flex mt-20 left-0 mx-auto px-4 w-fit justify-left items-center overflow-x-auto max-w-full'>
             <div className='mr-12 block '>
                 <Popover>
                     <PopoverButton className="w-full justify-center flex">
-                        <Button className='w-full flex justify-center px-2 py-1'>Input configuration</Button>
+                        <Button className='w-full flex justify-center px-3 py-2'>Input configuration</Button>
                     </PopoverButton>
                     <PopoverPanel className="absolute z-10 text-black bg-white rounded p-1 space-y-1 translate-y-[-150%] shadow">
                         <div className="flex justify-center w-full font-semibold">{`Input configuration`}</div>
@@ -152,7 +152,7 @@ const Project: FC<ProjectProps> = () => {
             <div className='flex h-[50vh] w-fit items-center'>
                 <div className='block h-full'>
                     <NetImg className='h-[90%] duration-200'/>
-                    <div className='h-[full] w-[65px] flex items-center justify-center text-center'>
+                    <div className='h-fit w-[65px] flex items-center justify-center text-center'>
                         Input
                     </div>
                 </div>
@@ -161,7 +161,7 @@ const Project: FC<ProjectProps> = () => {
                         const type = layerData.type
                         return (
                             <div className='block h-full' key={key}>
-                                <NetImg className='h-[90%] duration-200' color={type === LayerTypes.conv ? 'yellow' : type === LayerTypes.pooling ? 'green' : 'white'}/>
+                                <NetImg className='h-[90%] duration-200' color={type === LayerTypes.conv ? 'yellow' : type === LayerTypes.pooling ? 'green' : type === LayerTypes.upsampling ? 'blue' : 'white'}/>
                                 <Popover>
                                     <PopoverButton className='h-fit w-[8vh] flex items-center justify-center text-center hover:opacity-50 cursor-pointer outline-none'>
                                         <FontAwesomeIcon icon={faPlay} className='w-3 scale-75 rotate-90'/>
@@ -176,9 +176,8 @@ const Project: FC<ProjectProps> = () => {
                     })
                 }
                 <div className='block h-full'>
-                    {/* <img src={nodes.src} className='h-[90%] duration-200'/> */}
                     <NetImg className='h-[90%] duration-200' version='nodes'/>
-                    <div className='h-[full] w-[65px] flex items-center justify-center text-center'>
+                    <div className='h-fit w-[65px] flex items-center justify-center text-center'>
                         Output
                     </div>
                 </div>
@@ -186,7 +185,7 @@ const Project: FC<ProjectProps> = () => {
             <div className='ml-12 block'>
                 <Popover>
                     <PopoverButton className="w-full justify-center flex">
-                        <Button className='w-full flex justify-center px-2 py-1'>Output configuration</Button>
+                        <Button className='w-full flex justify-center px-3 py-2'>Output configuration</Button>
                     </PopoverButton>
                     <PopoverPanel className="absolute z-10 text-black bg-white rounded p-1 space-y-1 translate-y-[-180%] shadow">
                         <div className="flex justify-center w-full font-semibold">{`Output configuration`}</div>
@@ -219,7 +218,7 @@ const Project: FC<ProjectProps> = () => {
                 } className='max-w-48 duration-200' onClick={()=>{}}/>
             </div>
         </div>
-        <Button className='m-4 px-6 py-4 w-fit h-fit bg-gray-700 font-semibold' onClick={()=>{
+        <Button className='fixed bottom-0 m-16 px-6 py-4 bg-gray-700 font-semibold' onClick={()=>{
             doRequest({ url: 'set_project_config', reqmethod: 'POST', data: { data: projectConfig } })
             .then((data) => {
                 if (data['data'] === "completed") {

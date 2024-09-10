@@ -13,7 +13,7 @@ export default function Button({className="", onClick, children, enabled=true, v
     return (
         <div 
             className={clsx(
-                "rounded-md duration-200 ease-in-out border cursor-pointer shadow-md",
+                "rounded-md duration-200 ease-in-out border cursor-pointer shadow-xl",
                 (variation === 1 || variation === 2) && "text-white border-gray-500",
                 variation === 1 ? (enabled ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-800") : 
                 variation === 2 ? (enabled ? "bg-blue-800 hover:bg-blue-700" : "bg-blue-800") :
@@ -21,6 +21,9 @@ export default function Button({className="", onClick, children, enabled=true, v
                 className
             )}
             onClick={enabled ? onClick : ()=>{}}
+            style={{
+                userSelect: 'none'
+            }}
         >
             {children}
         </div>

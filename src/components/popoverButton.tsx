@@ -12,7 +12,7 @@ type Props = {
 export default function FAIPopover({buttonContent, children, parentScrollOffset}:Props) {
     return (
         <Popover>
-            <PopoverButton className="w-fit flex">
+            <PopoverButton className="w-full flex">
                 {buttonContent}
             </PopoverButton>
             <Transition

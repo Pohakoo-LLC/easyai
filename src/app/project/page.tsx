@@ -113,7 +113,7 @@ const Project: FC<ProjectProps> = () => {
         <div className='flex mt-20 left-0 mx-auto px-4 w-fit justify-left items-center overflow-x-auto max-w-full' id='ui-scroll-element'>
             <div className='mr-12 block '>
                 <FAIPopover 
-                    buttonContent={ <Button className={'flex justify-center px-3 py-2'}> Input configuration </Button> }
+                    buttonContent={ <Button className={'flex justify-center px-3 py-2 w-full'}> Input configuration </Button> }
                     parentScrollOffset={scrollElementScrollOffset}
                 >
                     <>
@@ -137,14 +137,17 @@ const Project: FC<ProjectProps> = () => {
                                 </>
                             </select>
                         </div>
-                        <div className='flex justify-center w-full'>{`Training data path: `}
-                            <input type='text' className='rounded border border-gray-400 ml-2 w-[15em] px-1' value={projectConfig.training_data_path} onChange={(t) => {
-                                const target = t.target as HTMLInputElement;
-                                let newConfig = projectConfig;
-                                newConfig.training_data_path = target.value;
-                                setProjectConfig({...newConfig});
-                            }}/>
-                        </div>
+                        {
+                            projectConfig.input?.type !== InputTypes.output_based &&
+                            <div className='flex justify-center w-full'>{`Training data path: `}
+                                <input type='text' className='rounded border border-gray-400 ml-2 w-[15em] px-1' value={projectConfig.training_data_path} onChange={(t) => {
+                                    const target = t.target as HTMLInputElement;
+                                    let newConfig = projectConfig;
+                                    newConfig.training_data_path = target.value;
+                                    setProjectConfig({...newConfig});
+                                }}/>
+                            </div>
+                        }
                     </>
                 </FAIPopover>
                 <img src={
@@ -228,16 +231,21 @@ const Project: FC<ProjectProps> = () => {
                 } className='max-w-48 duration-200'/>
             </div>
         </div>
-        <Button className='fixed bottom-0 m-16 px-6 py-4 bg-gray-700 font-semibold' onClick={()=>{
-            doRequest({ url: 'set_project_config', reqmethod: 'POST', data: { data: projectConfig } })
-            .then((data) => {
-                if (data['data'] === "completed") {
-                    window.location.href = "/"
-                }
-            });
-        }}>
-            <>Save and Exit</>
-        </Button>
+        <div className='flex space-x-2 fixed bottom-0 m-16'>
+            {
+                (projectConfig.output && projectConfig.input) &&
+                <Button className='px-6 py-4 bg-gray-700 font-semibold' onClick={()=>{
+                    doRequest({ url: 'set_project_config', reqmethod: 'POST', data: { data: projectConfig } })
+                    .then((data) => {
+                        if (data['data'] === "completed") {
+                            window.location.href = "/"
+                        }
+                    });
+                }}>
+                    <>Save and Exit</>
+                </Button>
+            }
+        </div>
     </div>
   );
 };

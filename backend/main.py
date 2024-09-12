@@ -7,6 +7,14 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+EXAMPLE_OUTPUT_FUNCTION = """
+from ...backend.helpers.main import OutputObj
+import numpy as np
+
+def output_function(input: OutputObj) -> np.ndarray:
+    return input.np_array / 2
+"""
+
 def create_project_files():
     try:
         os.mkdir('./project_files')
@@ -67,8 +75,12 @@ def handle_get_project_config():
 def handle_set_project_config():
     data = request.json['data']
     name = data['name']
+    output_based = data['input']['type'] == 'Function of the output'
     with open(f'./project_files/{name}/config.json', 'w') as f:
         json.dump(data, f)
+    if output_based and not os.path.exists(f'./project_files/{name}/output_function.py'):
+        with open(f'./project_files/{name}/output_function.py', 'w') as f:
+            f.write(EXAMPLE_OUTPUT_FUNCTION)
     return {'data':'completed'}
 
 if __name__ == '__main__':

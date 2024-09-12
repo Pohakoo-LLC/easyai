@@ -15,6 +15,7 @@ import script from '@/../public/Script.png'
 import text from '@/../public/TextToHDVector.png'
 import LayerCustomizer, { listToString } from '@/components/layerCustomizer';
 import NetImg from '@/components/networkImg';
+import FAIPopover from '@/components/popoverButton';
 
 interface ProjectProps {
   params: {
@@ -64,6 +65,8 @@ export type projConfigType = {
 
 const Project: FC<ProjectProps> = () => {
   const [searchParams, setSearchParams] = useState<URLSearchParams|undefined>(undefined);
+  const [scrollElementScrollOffset, setScrollElementOffset] = useState<[number, number]>([0, 0])
+
   useEffect(() => {
     setSearchParams(new URLSearchParams(window.location.search));
     if (process.env.NODE_ENV !== 'development') {
@@ -74,6 +77,11 @@ const Project: FC<ProjectProps> = () => {
             e.returnValue = 'Are you sure you want to exit? You will lose unsaved changes.';
         });
     }
+    const scrollElement = document.getElementById('ui-scroll-element')
+    scrollElement?.addEventListener('scroll', (ev) => {
+        const scrollOffset: [number, number] = [scrollElement.scrollLeft, scrollElement.scrollTop]
+        setScrollElementOffset(scrollOffset);
+    })
   }, []);
   const id = searchParams?.get('id') || '';
   const [projectConfig, setProjectConfig] = useState<projConfigType>({"name": id, "hidden_layers": [{"size": [100], "type":LayerTypes.dense}]});
@@ -102,13 +110,13 @@ const Project: FC<ProjectProps> = () => {
         <div className='w-full h-fit flex items-center justify-center text-xl font-semibold p-5'>
             {`Setup for ${id}`}
         </div>
-        <div className='flex mt-20 left-0 mx-auto px-4 w-fit justify-left items-center overflow-x-auto max-w-full'>
+        <div className='flex mt-20 left-0 mx-auto px-4 w-fit justify-left items-center overflow-x-auto max-w-full' id='ui-scroll-element'>
             <div className='mr-12 block '>
-                <Popover>
-                    <PopoverButton className="w-full justify-center flex">
-                        <Button className='w-full flex justify-center px-3 py-2'>Input configuration</Button>
-                    </PopoverButton>
-                    <PopoverPanel className="absolute z-10 text-black bg-white rounded p-1 space-y-1 translate-y-[-150%] shadow">
+                <FAIPopover 
+                    buttonContent={ <Button className={'flex justify-center px-3 py-2'}> Input configuration </Button> }
+                    parentScrollOffset={scrollElementScrollOffset}
+                >
+                    <>
                         <div className="flex justify-center w-full font-semibold">{`Input configuration`}</div>
                         <div className='flex justify-center w-full'>{`Type: `}
                             <select className='rounded border border-gray-400 ml-2 w-fit min-w-[5em] px-1' value={projectConfig.input?.type} onChange={(t) => {
@@ -137,8 +145,8 @@ const Project: FC<ProjectProps> = () => {
                                 setProjectConfig({...newConfig});
                             }}/>
                         </div>
-                    </PopoverPanel>
-                </Popover>
+                    </>
+                </FAIPopover>
                 <img src={
                     projectConfig.input?.type == InputTypes.audio ? audioImg.src :
                     projectConfig.input?.type == InputTypes.colorImage ? colorImg.src :
@@ -162,15 +170,17 @@ const Project: FC<ProjectProps> = () => {
                         return (
                             <div className='block h-full' key={key}>
                                 <NetImg className='h-[90%] duration-200' color={type === LayerTypes.conv ? 'yellow' : type === LayerTypes.pooling ? 'green' : type === LayerTypes.upsampling ? 'blue' : 'white'}/>
-                                <Popover>
-                                    <PopoverButton className='h-fit w-[8vh] flex items-center justify-center text-center hover:opacity-50 cursor-pointer outline-none'>
-                                        <FontAwesomeIcon icon={faPlay} className='w-3 scale-75 rotate-90'/>
-                                        <div className='ml-1'>{listToString(layerData.size)}</div>
-                                    </PopoverButton>
-                                    <PopoverPanel className="absolute z-10 text-black w-fit">
+                                <FAIPopover 
+                                    buttonContent={
+                                        <>
+                                            <FontAwesomeIcon icon={faPlay} className='w-3 scale-75 rotate-90'/>
+                                            <div className='ml-1'>{listToString(layerData.size)}</div>
+                                        </>
+                                    }
+                                    parentScrollOffset={scrollElementScrollOffset}
+                                >
                                         <LayerCustomizer projectConfig={projectConfig} setProjectConfig={setProjectConfig} layerData={layerData} id={key} />
-                                    </PopoverPanel>
-                                </Popover>
+                                </FAIPopover>
                             </div>
                         )
                     })
@@ -183,11 +193,11 @@ const Project: FC<ProjectProps> = () => {
                 </div>
             </div>
             <div className='ml-12 block'>
-                <Popover>
-                    <PopoverButton className="w-full justify-center flex">
-                        <Button className='w-full flex justify-center px-3 py-2'>Output configuration</Button>
-                    </PopoverButton>
-                    <PopoverPanel className="absolute z-10 text-black bg-white rounded p-1 space-y-1 translate-y-[-180%] shadow">
+                <FAIPopover 
+                    buttonContent={ <Button className={'flex justify-center px-3 py-2'}> Output configuration </Button> }
+                    parentScrollOffset={scrollElementScrollOffset}
+                >
+                    <>
                         <div className="flex justify-center w-full font-semibold">{`Output configuration`}</div>
                         <div className='flex justify-center w-full'>{`Type: `}
                             <select className='rounded border border-gray-400 ml-2 w-fit min-w-[5em] px-1' value={projectConfig.output?.type} onChange={(t) => {
@@ -206,8 +216,8 @@ const Project: FC<ProjectProps> = () => {
                                 }
                             </select>
                         </div>
-                    </PopoverPanel>
-                </Popover>
+                    </>
+                </FAIPopover>
                 <img src={
                     projectConfig.output?.type == OutputTypes.audio ? audioImg.src :
                     projectConfig.output?.type == OutputTypes.colorImage ? colorImg.src :
@@ -215,7 +225,7 @@ const Project: FC<ProjectProps> = () => {
                     projectConfig.output?.type == OutputTypes.token ? text.src :
                     projectConfig.output?.type == OutputTypes.id ? identification.src :
                     projectConfig.output?.type == OutputTypes.other ? script.src : undefined
-                } className='max-w-48 duration-200' onClick={()=>{}}/>
+                } className='max-w-48 duration-200'/>
             </div>
         </div>
         <Button className='fixed bottom-0 m-16 px-6 py-4 bg-gray-700 font-semibold' onClick={()=>{

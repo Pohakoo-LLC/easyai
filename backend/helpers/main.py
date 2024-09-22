@@ -104,10 +104,10 @@ def start_training(config: dict, epochs: int = 10):
     X_train = np.array(X_train)
     y_train = np.array(y_train)
 
-    # Add a channel dimension if working with grayscale images
-    if input_type == "Black and White Image":  # or img_bw
-        X_train = np.expand_dims(X_train, axis=-1)  # Shape: (batch_size, height, width, 1)
-    X_train = np.expand_dims(X_train, axis=0)  # Add batch size dimension if necessary
+    # Remove unnecessary expansion for grayscale images, ensure only one channel dimension
+    if input_type == "Black and White Image":
+        X_train = np.squeeze(X_train, axis=-1)  # Remove the last dimension if it's 1
+        X_train = np.expand_dims(X_train, axis=-1)  # Ensure shape is (batch_size, height, width, 1)
 
     # One-hot encode the labels
     y_train = to_categorical(y_train)
@@ -148,19 +148,33 @@ def start_training(config: dict, epochs: int = 10):
 
 # Function to make predictions on new data using a trained model
 def predict(data_path: str, model_path: str, config: dict):
-    # Load the trained model
+    # Load the model
     model = models.load_model(model_path)
 
-    # Determine the input type from the config
-    input_type = config["input"]["type"]
+    # Load the data
+    input_obj = OutputObj(config["input"]["type"], data_path)
 
-    # Load and preprocess the input data
-    input_obj = OutputObj(input_type, data_path)
-    X_test = np.expand_dims(input_obj.np_array, axis=0)  # Add batch dimension
+    # Ensure the input data has the correct shape
+    if config["input"]["type"] == "Black and White Image":
+        input_data = np.expand_dims(input_obj.np_array, axis=0)  # Add batch dimension
+    else:
+        input_data = input_obj.np_array
 
     # Make predictions
-    predictions = model.predict(X_test)
+    predictions = model.predict(input_data)
 
-    # Return the predicted class
-    predicted_class = np.argmax(predictions, axis=1)
-    return predicted_class[0]
+    # Convert predictions to human-readable format
+    if config["output"]["type"] == "Identification":
+        with open(config["training_data_path"], "r") as f:
+            training_index = json.load(f)
+        
+        # Convert all labels to strings for consistent sorting
+        unique_labels = sorted(set(str(label) for label in training_index.values()))
+        label_to_index = {label: idx for idx, label in enumerate(unique_labels)}
+        index_to_label = {idx: label for label, idx in label_to_index.items()}
+        
+        prediction = index_to_label[np.argmax(predictions)]
+    else:
+        prediction = predictions
+
+    return prediction

@@ -37,7 +37,9 @@ next-env.d.ts
 
 # python
 /.venv
+**/__pycache__/
 
 # misc
 /backend/project_files/
 /project_files/
+/backend/helpers/mnist_dataset/

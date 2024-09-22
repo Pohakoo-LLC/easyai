@@ -137,17 +137,14 @@ const Project: FC<ProjectProps> = () => {
                                 </>
                             </select>
                         </div>
-                        {
-                            projectConfig.input?.type !== InputTypes.output_based &&
-                            <div className='flex justify-center w-full'>{`Training data path: `}
-                                <input type='text' className='rounded border border-gray-400 ml-2 w-[15em] px-1' value={projectConfig.training_data_path} onChange={(t) => {
-                                    const target = t.target as HTMLInputElement;
-                                    let newConfig = projectConfig;
-                                    newConfig.training_data_path = target.value;
-                                    setProjectConfig({...newConfig});
-                                }}/>
-                            </div>
-                        }
+                        <div className='flex justify-center w-full'>{`labels.json path: `}
+                            <input type='text' className='rounded border border-gray-400 ml-2 w-[15em] px-1' value={projectConfig.training_data_path} onChange={(t) => {
+                                const target = t.target as HTMLInputElement;
+                                let newConfig = projectConfig;
+                                newConfig.training_data_path = target.value;
+                                setProjectConfig({...newConfig});
+                            }}/>
+                        </div>
                     </>
                 </FAIPopover>
                 <img src={

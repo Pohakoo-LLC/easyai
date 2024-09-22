@@ -6,6 +6,7 @@ from keras.api import models, layers
 from keras.api.utils import to_categorical
 import os
 from PIL import Image
+from typing import Optional
 
 # Converts text input to an embedding using a pretrained transformer model
 def text_to_embedding(text, model_name="meta-llama/Meta-Llama-3.1-8B"):
@@ -38,8 +39,10 @@ typeConversions = {
 
 # A class that represents different types of data inputs and converts them to numpy arrays
 class OutputObj:
-    def __init__(self, out_type, data_path_or_desired_output: str | None = None, labels_path: str | None = None) -> None:
+    def __init__(self, out_type: str, data_path_or_desired_output: Optional[str] = None, labels_path: Optional[str] = None) -> None:
         # Determine the type of the data based on the input
+        if out_type not in typeConversions:
+            raise ValueError(f"Unsupported output type: {out_type}")
         self.type = typeConversions[out_type]
         
         # If labels_path is provided, join it with the data path
@@ -51,7 +54,7 @@ class OutputObj:
         self.np_array = None
 
         # Load and process the input data based on the type
-        if self.type == 'other':
+        if self.type in ['other', 'audio']:
             self.np_array = np.load(self.data_path_or_desired_output, allow_pickle=True)
         elif self.type == 'img_col':
             image = Image.open(self.data_path_or_desired_output).convert('RGB')  # Ensure color
@@ -60,8 +63,6 @@ class OutputObj:
             image = Image.open(self.data_path_or_desired_output).convert('L')  # Ensure grayscale
             self.np_array = np.array(image, dtype=np.float32) / 255.0  # Normalize and convert to float32
             self.np_array = np.expand_dims(self.np_array, axis=-1)  # Add the channel dimension (28, 28) -> (28, 28, 1)
-        elif self.type in ['audio', 'other']:
-            self.np_array = np.load(self.data_path_or_desired_output, allow_pickle=True)
         elif self.type == 'text':
             self.np_array = text_to_embedding(self.data_path_or_desired_output)
         elif self.type == 'id':
@@ -79,10 +80,13 @@ class OutputObj:
         label_to_index = {label: idx for idx, label in enumerate(unique_labels)}
         
         self.np_array = np.zeros(len(unique_labels))
-        self.np_array[label_to_index[label_key]] = 1
+        if label_key in label_to_index:
+            self.np_array[label_to_index[label_key]] = 1
+        else:
+            raise ValueError(f"Label {label_key} not found in labels.")
 
 # Function to load, preprocess data, build and train a model based on the config
-def start_training(config: dict, epochs: int = 10):
+def start_training(config: dict, epochs: int = 10, batch_size: int = 32):
     # Load training labels from JSON
     with open(config["training_data_path"], "r") as f:
         training_index = json.load(f)
@@ -139,11 +143,13 @@ def start_training(config: dict, epochs: int = 10):
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
     # Train the model
-    model.fit(X_train, y_train, epochs=epochs, batch_size=32)
+    try:
+        model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
+    except Exception as e:
+        print(f"Error during model training: {e}")
 
     # Save the trained model
-    dist = config["name"] + ".keras"
-    dist = os.path.join(os.path.dirname(config["training_data_path"]), dist)
+    dist = os.path.join(os.path.dirname(config["training_data_path"]), f"{config['name']}.keras")
     model.save(dist)
 
 # Function to make predictions on new data using a trained model
@@ -155,10 +161,7 @@ def predict(data_path: str, model_path: str, config: dict):
     input_obj = OutputObj(config["input"]["type"], data_path)
 
     # Ensure the input data has the correct shape
-    if config["input"]["type"] == "Black and White Image":
-        input_data = np.expand_dims(input_obj.np_array, axis=0)  # Add batch dimension
-    else:
-        input_data = input_obj.np_array
+    input_data = np.expand_dims(input_obj.np_array, axis=0)  # Add batch dimension
 
     # Make predictions
     predictions = model.predict(input_data)

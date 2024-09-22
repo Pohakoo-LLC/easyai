@@ -1,11 +1,9 @@
 "use client";
 
 import { FC, useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
 import doRequest from '@/components/doRequest';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
-import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import Button from '@/components/button';
 import audioImg from '@/../public/Audio.png'
 import bwImg from '@/../public/BWImage.png'
@@ -23,12 +21,7 @@ interface ProjectProps {
   };
 }
 
-export enum LayerTypes {
-    dense = "Dense",
-    conv = "Convolution",
-    pooling = "Max pooling",
-    upsampling = "Upsampling"
-}
+export type LayerTypes = "Dense"|"Convolution"|"Max pooling"|"Upsampling"
 
 enum InputTypes {
     colorImage = "Color Image",
@@ -50,17 +43,23 @@ enum OutputTypes {
 }
 
 export type projConfigType = {
-    "name": string,
-    "hidden_layers": {"size": number[], "type": LayerTypes, "config"?: {"filters"?: number, "activation"?: "sig"|"ReLU"|"linear"|"Softmax"}}[],
+    "name": string;
+    "hidden_layers": {
+        "size": number[];
+        "type": LayerTypes;
+        "config"?: {
+            "filters"?: number; "activation"?: "sig"|"ReLU"|"linear"|"Softmax";
+        }
+    }[];
     "input"?: {
-        "type":InputTypes,
-        "size"?: number
-    },
+        "type":InputTypes;
+        "size"?: number;
+    };
     "output"?: {
-        "type":OutputTypes,
-        "size"?: number
-    },
-    "training_data_path"?: string
+        "type":OutputTypes;
+        "size"?: number;
+    };
+    "training_data_path"?: string;
   }
 
 const Project: FC<ProjectProps> = () => {
@@ -84,14 +83,14 @@ const Project: FC<ProjectProps> = () => {
     })
   }, []);
   const id = searchParams?.get('id') || '';
-  const [projectConfig, setProjectConfig] = useState<projConfigType>({"name": id, "hidden_layers": [{"size": [100], "type":LayerTypes.dense}]});
+  const [projectConfig, setProjectConfig] = useState<projConfigType>({"name": id, "hidden_layers": [{"size": [100], "type":"Dense"}]});
 
   const handleFunction = (param: string) => {
     doRequest({ url: 'get_project_config', reqmethod: 'POST', data: { data: param } })
     .then((data) => {
       setProjectConfig(data['data']);
       if (!projectConfig.hidden_layers) {
-        projectConfig.hidden_layers = [{"size": [100], "type":LayerTypes.dense}]
+        projectConfig.hidden_layers = [{"size": [100], "type":"Dense"}]
       }
       if (!projectConfig.input) {
         projectConfig.input = {"type":InputTypes.id}
@@ -169,7 +168,7 @@ const Project: FC<ProjectProps> = () => {
                         const type = layerData.type
                         return (
                             <div className='block h-full' key={key}>
-                                <NetImg className='h-[90%] duration-200' color={type === LayerTypes.conv ? 'yellow' : type === LayerTypes.pooling ? 'green' : type === LayerTypes.upsampling ? 'blue' : 'white'}/>
+                                <NetImg className='h-[90%] duration-200' color={type === "Convolution" ? 'yellow' : type === "Max pooling" ? 'green' : type === "Upsampling" ? 'blue' : 'white'}/>
                                 <FAIPopover 
                                     buttonContent={
                                         <>

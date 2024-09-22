@@ -1,36 +1,38 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+# About
+Want to create your own AI (neural network)? This project is intended for people with large datasets and a basic understanding of AI, but don't know how to code and don't want to hire a programmer. This makes training a neural network easy, repeatable, and standard.
+<br>Coded by [Kai Sereni](https://kai.gallery) in 2024.
 
-First, run the development server:
+# Setup
+## Requirements:
+- Python 3.10.11
+- NPM
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Dataset
+Here's an example of what a dataset folder should look like. This example dataset has a list of images, each with a hand-drawn number, with the neural network's goal being to identify the number given the image.
+```tree
+Dataset
+├── labels.json
+├── images
+│   ├── image0.png
+│   ├── image1.png
+│   ├── image2.png
+│   ├── ...
+```
+Example `labels.json`:
+```json
+{"images/image0.png":"4", "images/image1.png":"1", "images/image2.png":"8", ...} 
+// The path to the image is relative to the labels.json file.
+// The labels are always either a string with a label or a string with a relative file path.
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Quick Start (Windows)
+1. Clone the repo and cd into the folder in Powershell
+2. Create a venv with `python -m venv .venv` and `.venv/Scripts/activate`
+3. Install the required Python packages with `pip install -r requirements.txt`
+4. Run the backend with `python backend/main.py`
+5. Open a new Powershell window and cd into the repo folder
+6. Install npm packages with `npm i`
+7. Run the project with `npm run build` and `npm run start`
+8. Open `http://localhost:3000` in your browser

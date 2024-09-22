@@ -14,10 +14,10 @@ export function listToString(list: number[]) {
 }
 
 export default function LayerCustomizer({setProjectConfig, projectConfig, id, layerData}:Props) {
-    const LayerTypesList = Object.values(LayerTypes)
+    const LayerTypesList: LayerTypes[] = ["Dense","Convolution","Max pooling","Upsampling"]
     function insertLayer(id: number, defaultSize:number[] = [100]) {
         let newConfig = projectConfig;
-        newConfig.hidden_layers.splice(id, 0, {"size": defaultSize, "type": LayerTypes.dense});
+        newConfig.hidden_layers.splice(id, 0, {"size": defaultSize, "type": "Dense"});
         setProjectConfig({...newConfig});
     }
     function deleteLayer(id: number) {
@@ -65,7 +65,7 @@ export default function LayerCustomizer({setProjectConfig, projectConfig, id, la
             <div className='flex justify-center max-w-full space-x-2'>
                 <>
                     {
-                        projectConfig.hidden_layers[id]?.type == LayerTypes.conv &&
+                        projectConfig.hidden_layers[id]?.type == "Convolution" &&
                         <div className='flex justify-center w-full'>{`Filters: `}
                             <input 
                                 type='text' 
@@ -85,7 +85,7 @@ export default function LayerCustomizer({setProjectConfig, projectConfig, id, la
                         </div>
                     }
                     {
-                        projectConfig.hidden_layers[id]?.type == LayerTypes.conv &&
+                        projectConfig.hidden_layers[id]?.type == "Convolution" &&
                         <div className='flex justify-center w-full'>{`Activation: `}
                             <select className='rounded border border-gray-400 ml-1 w-fit min-w-[5em] px-1' value={projectConfig.hidden_layers[id].config?.activation} onChange={(t) => {
                                 const target = t.target as HTMLSelectElement;

@@ -36,3 +36,9 @@ Example `labels.json`:
 6. Install npm packages with `npm i`
 7. Run the project with `npm run build` and `npm run start`
 8. Open `http://localhost:3000` in your browser
+
+# Additional Notes
+- You can download the MNIST dataset and generate an example `labels.json` file by running the script in backend/helpers (102MB)
+- There are some test MNIST numbers that I drew in the images path
+<br>
+![Image 1](images/test_image_4.png) ![Image 2](images/test_image_8.png)

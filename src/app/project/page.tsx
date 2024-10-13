@@ -60,22 +60,16 @@ export type projConfigType = {
         "size"?: number;
     };
     "training_data_path"?: string;
+    "epochs": number;
   }
 
 const Project: FC<ProjectProps> = () => {
   const [searchParams, setSearchParams] = useState<URLSearchParams|undefined>(undefined);
   const [scrollElementScrollOffset, setScrollElementOffset] = useState<[number, number]>([0, 0])
+  const [isTraining, setIsTraining] = useState(false);
 
   useEffect(() => {
     setSearchParams(new URLSearchParams(window.location.search));
-    if (process.env.NODE_ENV !== 'development') {
-        window.addEventListener('beforeunload', function (e) {
-            // Prevent the default action (page close)
-            e.preventDefault();
-            // Custom message (browsers often ignore it and show their own message)
-            e.returnValue = 'Are you sure you want to exit? You will lose unsaved changes.';
-        });
-    }
     const scrollElement = document.getElementById('ui-scroll-element')
     scrollElement?.addEventListener('scroll', (ev) => {
         const scrollOffset: [number, number] = [scrollElement.scrollLeft, scrollElement.scrollTop]
@@ -83,7 +77,7 @@ const Project: FC<ProjectProps> = () => {
     })
   }, []);
   const id = searchParams?.get('id') || '';
-  const [projectConfig, setProjectConfig] = useState<projConfigType>({"name": id, "hidden_layers": [{"size": [100], "type":"Dense"}]});
+  const [projectConfig, setProjectConfig] = useState<projConfigType>({"name": id, "hidden_layers": [{"size": [100], "type":"Dense"}], epochs: 50});
 
   const handleFunction = (param: string) => {
     doRequest({ url: 'get_project_config', reqmethod: 'POST', data: { data: param } })
@@ -112,7 +106,7 @@ const Project: FC<ProjectProps> = () => {
         <div className='flex mt-20 left-0 mx-auto px-4 w-fit justify-left items-center overflow-x-auto max-w-full' id='ui-scroll-element'>
             <div className='mr-12 block '>
                 <FAIPopover 
-                    buttonContent={ <Button className={'flex justify-center px-3 py-2 w-full'}> Input configuration </Button> }
+                    buttonContent={ <Button className={'flex justify-center px-3 py-2 w-full'} enabled={!isTraining}> Input configuration </Button> }
                     parentScrollOffset={scrollElementScrollOffset}
                 >
                     <>
@@ -141,6 +135,14 @@ const Project: FC<ProjectProps> = () => {
                                 const target = t.target as HTMLInputElement;
                                 let newConfig = projectConfig;
                                 newConfig.training_data_path = target.value;
+                                setProjectConfig({...newConfig});
+                            }}/>
+                        </div>
+                        <div className='flex justify-center w-full'>{`Epochs: `}
+                            <input type='number' className='rounded border border-gray-400 ml-2 w-[5em] px-1' value={projectConfig.epochs} onChange={(t) => {
+                                const target = t.target as HTMLInputElement;
+                                let newConfig = projectConfig;
+                                newConfig.epochs = parseInt(target.value);
                                 setProjectConfig({...newConfig});
                             }}/>
                         </div>
@@ -193,7 +195,7 @@ const Project: FC<ProjectProps> = () => {
             </div>
             <div className='ml-12 block'>
                 <FAIPopover 
-                    buttonContent={ <Button className={'flex justify-center px-3 py-2'}> Output configuration </Button> }
+                    buttonContent={ <Button className={'flex justify-center px-3 py-2'} enabled={!isTraining}> Output configuration </Button> }
                     parentScrollOffset={scrollElementScrollOffset}
                 >
                     <>
@@ -227,10 +229,10 @@ const Project: FC<ProjectProps> = () => {
                 } className='max-w-48 duration-200'/>
             </div>
         </div>
-        <div className='flex space-x-2 fixed bottom-0 m-16'>
+        <div className='flex space-x-2 fixed bottom-0 m-16 w-full'>
             {
                 (projectConfig.output && projectConfig.input) &&
-                <Button className='px-6 py-4 bg-gray-700 font-semibold' onClick={()=>{
+                <Button className='px-6 py-4' enabled={!isTraining} onClick={()=>{
                     doRequest({ url: 'set_project_config', reqmethod: 'POST', data: { data: projectConfig } })
                     .then((data) => {
                         if (data['data'] === "completed") {
@@ -239,6 +241,38 @@ const Project: FC<ProjectProps> = () => {
                     });
                 }}>
                     <>Save and Exit</>
+                </Button>
+            }
+            {
+                (projectConfig.input && projectConfig.output && projectConfig.training_data_path) &&
+                <Button className='px-6 py-4' variation={3} enabled={!isTraining} onClick={() => {
+                    doRequest({ url: 'set_project_config', reqmethod: 'POST', data: { data: projectConfig } })
+                    .then((data) => {
+                        if (data['data'] === "completed") {
+                            setIsTraining(true);
+                            doRequest({ url: 'train_project', reqmethod: 'POST', data: { data: projectConfig.name } })
+                            .then((data) => {
+                                if (data['data'] === "completed") {
+                                    setIsTraining(false);
+                                    alert("Training completed. Check backend console for details.");
+                                    window.location.href = "/";
+                                }
+                                else {
+                                    setIsTraining(false);
+                                    alert("Training failed. Check backend console for details.");
+                                }
+                            })
+                        }
+                        else {
+                            alert("Failed to save project configuration. Check backend console for details.");
+                        }
+                    })
+                }}>
+                    {
+                        isTraining ?
+                        <>Training. Check Backend console for updates.</> :
+                        <>Start Training</>
+                    }
                 </Button>
             }
         </div>

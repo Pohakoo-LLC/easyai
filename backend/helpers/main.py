@@ -86,7 +86,7 @@ class OutputObj:
             raise ValueError(f"Label {label_key} not found in labels.")
 
 # Function to load, preprocess data, build and train a model based on the config
-def start_training(config: dict, epochs: int = 10, batch_size: int = 32):
+def start_training(config: dict, batch_size: int = 32):
     # Load training labels from JSON
     with open(config["training_data_path"], "r") as f:
         training_index = json.load(f)
@@ -94,6 +94,7 @@ def start_training(config: dict, epochs: int = 10, batch_size: int = 32):
     # Get input and output types
     input_type = config["input"]["type"]
     output_type = config["output"]["type"]
+    epochs = config["epochs"]
 
     # Initialize lists for training data and labels
     X_train, y_train = [], []

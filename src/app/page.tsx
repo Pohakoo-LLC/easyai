@@ -54,28 +54,26 @@ export default function Home() {
                 </div>
             </div>
             <div className="w-full h-fit p-3 mt-4 flex items-center justify-center space-x-3">
-                <Button onClick={()=>{setClickedNewProject(true)}} className={"w-48 h-48"} enabled={!clickedNewProject}>
-                    <div className="flex w-full h-full items-center justify-center text-center">
-                        {
-                            !clickedNewProject ?
-                            <div>New Project</div>
-                            :
-                            <div className="block w-full h-fit p-0 mx-2 items-center justify-center">
-                                <input type="text" placeholder="Project name" value={projectName} onChange={(e)=>{setProjectName(e.target.value)}} className="w-full p-1 text-black rounded shadow"></input>
-                                <div className="h-10 flex justify-center" onClick={handleCreateNewProject}>
-                                    {
-                                        newProjectResult === reqStatus.unsent ?
-                                        projectName.length > 0 && <div className="bg-gray-700 px-2 py-1 w-1/2 h-fit mt-1 rounded cursor-pointer duration-100 border border-gray-500 hover:bg-gray-600">Create</div>
-                                        :
-                                        newProjectResult === reqStatus.waiting ?
-                                        <div className="m-2"><Spinner/></div>
-                                        :
-                                        newProjectResult != reqStatus.completed && <>{`Server error: ${newProjectResult}`}</>
-                                    }
-                                </div>
+                <Button onClick={()=>{setClickedNewProject(true)}} className={"w-48 h-48 flex items-center justify-center text-center"} enabled={!clickedNewProject}>
+                    {
+                        !clickedNewProject ?
+                        <div>New Project</div>
+                        :
+                        <div className="block w-full h-fit p-0 mx-2 items-center justify-center">
+                            <input type="text" placeholder="Project name" value={projectName} onChange={(e)=>{setProjectName(e.target.value)}} className="w-full p-1 text-black rounded shadow"></input>
+                            <div className="h-10 flex justify-center" onClick={handleCreateNewProject}>
+                                {
+                                    newProjectResult === reqStatus.unsent ?
+                                    projectName.length > 0 && <div className="bg-gray-700 px-2 py-1 w-1/2 h-fit mt-1 rounded cursor-pointer duration-100 border border-gray-500 hover:bg-gray-600">Create</div>
+                                    :
+                                    newProjectResult === reqStatus.waiting ?
+                                    <div className="m-2"><Spinner/></div>
+                                    :
+                                    newProjectResult != reqStatus.completed && <>{`Server error: ${newProjectResult}`}</>
+                                }
                             </div>
-                        }
-                    </div>
+                        </div>
+                    }
                 </Button>
                 <Button className="overflow-y-auto w-48 h-48" enabled={false}>
                     <div className="block">

@@ -150,7 +150,8 @@ def start_training(config: dict, batch_size: int = 32):
         print(f"Error during model training: {e}")
 
     # Save the trained model
-    dist = os.path.join(os.path.dirname(config["training_data_path"]), f"{config['name']}.keras")
+    project_path = os.path.join("project_files", config["name"])
+    dist = os.path.join(project_path, f"{config['name']}.keras")
     model.save(dist)
 
 # Function to make predictions on new data using a trained model

@@ -67,6 +67,7 @@ const Project: FC<ProjectProps> = () => {
   const [searchParams, setSearchParams] = useState<URLSearchParams|undefined>(undefined);
   const [scrollElementScrollOffset, setScrollElementOffset] = useState<[number, number]>([0, 0])
   const [isTraining, setIsTraining] = useState(false);
+  const [modelExists, setModelExists] = useState(false);
 
   useEffect(() => {
     setSearchParams(new URLSearchParams(window.location.search));
@@ -89,6 +90,10 @@ const Project: FC<ProjectProps> = () => {
       if (!projectConfig.input) {
         projectConfig.input = {"type":InputTypes.id}
       }
+    });
+    doRequest({ url: 'has_associated_model', reqmethod: 'POST', data: { data: id } })
+    .then((data) => {
+      setModelExists(data['data']);
     });
   };
 
@@ -273,6 +278,27 @@ const Project: FC<ProjectProps> = () => {
                         <>Training. Check Backend console for updates.</> :
                         <>Start Training</>
                     }
+                </Button>
+            }
+            {
+                modelExists &&
+                <Button className='px-6 py-4' variation={3} enabled={!isTraining} onClick={() => {
+                    const inputType = projectConfig.input?.type;
+                    const inputPrompt = inputType === InputTypes.text ? "Enter text input:" : "Enter path to input data:";
+                    const userInput = prompt(inputPrompt);
+
+                    if (userInput) {
+                        doRequest({ url: 'predict', reqmethod: 'POST', data: { data: { project: projectConfig.name, path: userInput } } })
+                        .then((data) => {
+                            if (data['data']) {
+                                alert(`Prediction result: ${data['data']}`);
+                            } else {
+                                alert("Prediction failed. Check backend console for details.");
+                            }
+                        });
+                    }
+                }}>
+                    <>Run Prediction</>
                 </Button>
             }
         </div>

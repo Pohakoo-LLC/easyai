@@ -20,35 +20,11 @@ def output_function(input: OutputObj) -> np.ndarray:
     return input.np_array / 2
 """
 
-def estimate_training_time(total_nodes: int, num_training_samples: int, num_epochs: int, time_per_unit: float = 1e-6) -> float:
-    """
-    Estimate the training time for a neural network.
-    
-    Parameters:
-    - total_nodes (int): Total number of nodes in the whole network.
-    - num_training_samples (int): Number of training samples.
-    - num_epochs (int): Number of epochs.
-    - time_per_unit (float): Time taken to process one unit of work (default: 1e-6 seconds).
-    
-    Returns:
-    - float: Estimated training time in seconds.
-    """
-    # Total computations = number of nodes * number of samples * number of epochs
+def estimate_training_time(total_nodes: int, num_epochs: int, num_training_samples: int = 1000, time_per_unit: float = 1e-4) -> float:
     total_computations = total_nodes * num_training_samples * num_epochs
-    
-    # Estimated training time
     estimated_time = total_computations * time_per_unit
     
     return estimated_time
-
-# Example usage
-nodes = 1000  # Example: total nodes in the network
-samples = 50000  # Example: number of training samples
-epochs = 10  # Example: number of epochs
-time_per_unit = 2e-6  # Example: estimated time per unit (based on hardware)
-
-estimated_time = estimate_training_time(nodes, samples, epochs, time_per_unit)
-print(f"Estimated training time: {estimated_time} seconds")
 
 def create_project_files():
     try:
@@ -96,9 +72,8 @@ def train_project(project_name: str):
             total_nodes += layer['size'][0]
         elif layer['type'] == 'Convolution':
             total_nodes += layer['size'][0] * layer['size'][1] * layer['config']['filters']
-    num_training_samples = 1000
     num_epochs = config['epochs']
-    time_estimate = estimate_training_time(total_nodes, num_training_samples, num_epochs)
+    time_estimate = estimate_training_time(total_nodes, num_epochs)
     print(f"Training project {project_name}. \nEstimated training time: {time_estimate} seconds. \nEstimated time of completion: {time.ctime(time.time() + time_estimate)}")
     try:
         start_training(
@@ -109,6 +84,9 @@ def train_project(project_name: str):
         print(tb)
         return {"error":tb}, 500
     return {"data":"completed"}, 200
+
+def has_associated_model(project_name: str) -> bool:
+    return os.path.exists(f'./project_files/{project_name}/{project_name}.keras')
 
 @app.route('/get_projects', methods=['GET'])
 def handle_get_projects():
@@ -151,7 +129,6 @@ def handle_train_project():
     training = train_project(name)
     return training
 
-# example config: {"hidden_layers": [{"config": {"activation": "ReLU", "filters": 32}, "size": [3, 3], "type": "Convolution"}, {"size": [2, 2], "type": "Max pooling"}, {"size": [2000, 2000], "type": "Dense"}], "input": {"type": "Black and White Image"}, "name": "test", "output": {"type": "Identification"}, "training_data_path": "A:\\documents\\easy-ai\\backend\\helpers\\mnist_dataset\\labels.json"}
 @app.route('/predict', methods=['POST'])
 def handle_predict():
     try:
@@ -167,6 +144,11 @@ def handle_predict():
         tb = traceback.format_exc()
         print(tb)
         return {'error':tb}, 500
+    
+@app.route('/has_associated_model', methods=['POST'])
+def handle_has_associated_model():
+    name = request.json['data']
+    return {'data':has_associated_model(name)}
 
 if __name__ == '__main__':
     app.run()

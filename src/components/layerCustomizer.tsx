@@ -1,12 +1,12 @@
 import { LayerTypes } from "@/app/project/page"
-import { projConfigType } from "@/app/project/page";
+import { ProjectConfigurationSchema as ProjConfigType } from "@/types/Project";
 import Button from "./button";
 
 type Props = {
-    setProjectConfig: (config:projConfigType)=>void,
-    projectConfig: projConfigType,
+    setProjectConfig: (config:ProjConfigType)=>void,
+    projectConfig: ProjConfigType,
     id: number,
-    layerData: projConfigType['hidden_layers'][0]
+    layerData: ProjConfigType['hidden_layers'][0]
 }
 
 export function listToString(list: number[]) {
@@ -14,7 +14,7 @@ export function listToString(list: number[]) {
 }
 
 export default function LayerCustomizer({setProjectConfig, projectConfig, id, layerData}:Props) {
-    const LayerTypesList: LayerTypes[] = ["Dense","Convolution","Max pooling","Upsampling"]
+    const LayerTypesList: LayerTypes[] = ["Dense","Convolution","Max pooling"]
     function insertLayer(id: number, defaultSize:number[] = [100]) {
         let newConfig = projectConfig;
         newConfig.hidden_layers.splice(id, 0, {"size": defaultSize, "type": "Dense"});

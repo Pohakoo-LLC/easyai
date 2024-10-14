@@ -41,4 +41,4 @@ Example `labels.json`:
 - You can download the MNIST dataset and generate an example `labels.json` file by running the script in backend/helpers (102MB)
 - There are some test MNIST numbers that I drew in the images path
 <br>
-![Image 1](images/test_image_4.png) ![Image 2](images/test_image_8.png)
+![Image 1](images/test_image_4.png) ![Image 2](images/test_image_8.png) ![Image 3](images/test_image_3.png)

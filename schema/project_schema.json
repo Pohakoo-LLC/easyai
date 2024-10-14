@@ -1,0 +1,110 @@
+{
+    "title": "Project Configuration Schema",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "The name of the project."
+      },
+      "hidden_layers": {
+        "type": "array",
+        "description": "Array of hidden layers in the project.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "size": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "description": "An array representing the size of each layer."
+            },
+            "type": {
+              "type": "string",
+              "enum": ["Dense", "Convolution", "Max pooling"],
+              "description": "The type of the hidden layer."
+            },
+            "config": {
+              "type": "object",
+              "description": "Optional configuration for the hidden layer.",
+              "properties": {
+                "filters": {
+                  "type": "number",
+                  "description": "Number of filters (for layers like Convolution)."
+                },
+                "activation": {
+                  "type": "string",
+                  "enum": ["sig", "ReLU", "linear", "Softmax"],
+                  "description": "The activation function for the layer."
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          "required": ["size", "type"],
+          "additionalProperties": false
+        }
+      },
+      "input": {
+        "type": "object",
+        "description": "Input configuration of the project.",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "Color Image",
+              "Black and White Image",
+              "Audio",
+              "Text",
+              "Identification",
+              "Function of the output",
+              "Other"
+            ],
+            "description": "The type of input."
+          },
+          "size": {
+            "type": "number",
+            "description": "Optional size for the input."
+          }
+        },
+        "required": ["type"],
+        "additionalProperties": false
+      },
+      "output": {
+        "type": "object",
+        "description": "Output configuration of the project.",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "Color Image",
+              "Black and White Image",
+              "Audio",
+              "Token",
+              "Identification",
+              "Other"
+            ],
+            "description": "The type of output."
+          },
+          "size": {
+            "type": "number",
+            "description": "Optional size for the output."
+          }
+        },
+        "required": ["type"],
+        "additionalProperties": false
+      },
+      "training_data_path": {
+        "type": "string",
+        "description": "Optional path to the training data."
+      },
+      "epochs": {
+        "type": "number",
+        "description": "The number of training epochs."
+      }
+    },
+    "required": ["name", "hidden_layers", "epochs"],
+    "additionalProperties": false
+  }
+  

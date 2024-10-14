@@ -7,6 +7,9 @@ import Button from "@/components/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash";
 
+// Example project config:
+// {"epochs": 9, "hidden_layers": [{"config": {"activation": "ReLU", "filters": 32}, "size": [3, 3], "type": "Convolution"}, {"config": {"filters": 4}, "size": [2, 2], "type": "Max pooling"}, {"config": {"activation": "ReLU", "filters": 64}, "size": [3, 3], "type": "Convolution"}, {"size": [2, 2], "type": "Max pooling"}, {"size": [256], "type": "Dense"}], "input": {"type": "Black and White Image"}, "name": "mnist", "output": {"type": "Identification"}, "training_data_path": "A:\\documents\\easy-ai\\backend\\helpers\\mnist_dataset\\labels.json"}
+
 export default function Home() {
 
     const [projects, setProjectsList] = useState<string[]|undefined>(undefined)
@@ -20,7 +23,6 @@ export default function Home() {
             setProjectsList(data['data'])
         })
     }, [])
-    
 
     const handleCreateNewProject = () => {
         setNewProjectResult(reqStatus.waiting)

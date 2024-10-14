@@ -14,6 +14,7 @@ import text from '@/../public/TextToHDVector.png'
 import LayerCustomizer, { listToString } from '@/components/layerCustomizer';
 import NetImg from '@/components/networkImg';
 import FAIPopover from '@/components/popoverButton';
+import { ProjectConfigurationSchema as ProjConfigType } from '@/types/Project';
 
 interface ProjectProps {
   params: {
@@ -21,7 +22,7 @@ interface ProjectProps {
   };
 }
 
-export type LayerTypes = "Dense"|"Convolution"|"Max pooling"|"Upsampling"
+export type LayerTypes = "Dense"|"Convolution"|"Max pooling"
 
 enum InputTypes {
     colorImage = "Color Image",
@@ -42,27 +43,6 @@ enum OutputTypes {
     other = "Other"
 }
 
-export type projConfigType = {
-    "name": string;
-    "hidden_layers": {
-        "size": number[];
-        "type": LayerTypes;
-        "config"?: {
-            "filters"?: number; "activation"?: "sig"|"ReLU"|"linear"|"Softmax";
-        }
-    }[];
-    "input"?: {
-        "type":InputTypes;
-        "size"?: number;
-    };
-    "output"?: {
-        "type":OutputTypes;
-        "size"?: number;
-    };
-    "training_data_path"?: string;
-    "epochs": number;
-  }
-
 const Project: FC<ProjectProps> = () => {
   const [searchParams, setSearchParams] = useState<URLSearchParams|undefined>(undefined);
   const [scrollElementScrollOffset, setScrollElementOffset] = useState<[number, number]>([0, 0])
@@ -78,8 +58,35 @@ const Project: FC<ProjectProps> = () => {
     })
   }, []);
   const id = searchParams?.get('id') || '';
-  const [projectConfig, setProjectConfig] = useState<projConfigType>({"name": id, "hidden_layers": [{"size": [100], "type":"Dense"}], epochs: 50});
+  const [projectConfig, setProjectConfig] = useState<ProjConfigType>({"name": id, "hidden_layers": [{"size": [100], "type":"Dense"}], epochs: 50});
 
+  const checker = (config: any) => {
+        const errors: string[] = [];
+        let lastLayerType = '';
+
+        for (const layer of config.hidden_layers) {
+            if (layer.type === 'Convolution') {
+                lastLayerType = 'Convolution';
+            } else if (layer.type === 'Max pooling') {
+                lastLayerType = 'Max pooling';
+            } else if (layer.type === 'Dense') {
+                if (Array.isArray(layer.size) && layer.size.length > 1) {
+                    errors.push('Multi-dimensional Dense layer found.');
+                }
+            }
+
+            if (lastLayerType === 'Convolution' && layer.type !== 'Max pooling') {
+                errors.push('Convolution layer without a following Max pooling layer found.');
+            }
+
+            if (Array.isArray(layer.size) && layer.size.length > 3) {
+                errors.push('Layer with more than 3 dimensions found.');
+            }
+        }
+
+        return errors.length === 0 ? [true, []] : [false, errors];
+    }
+  
   const handleFunction = (param: string) => {
     doRequest({ url: 'get_project_config', reqmethod: 'POST', data: { data: param } })
     .then((data) => {
@@ -175,7 +182,7 @@ const Project: FC<ProjectProps> = () => {
                         const type = layerData.type
                         return (
                             <div className='block h-full' key={key}>
-                                <NetImg className='h-[90%] duration-200' color={type === "Convolution" ? 'yellow' : type === "Max pooling" ? 'green' : type === "Upsampling" ? 'blue' : 'white'}/>
+                                <NetImg className='h-[90%] duration-200' color={type === "Convolution" ? 'yellow' : type === "Max pooling" ? 'green' : 'white'}/>
                                 <FAIPopover 
                                     buttonContent={
                                         <>

@@ -2,9 +2,9 @@ import json
 import os
 import time
 import shutil
-from helpers.neural_nets import start_training
+from helpers.neural_nets import start_training, root
 import traceback
-from jsonschema import validate
+import os
 
 
 EXAMPLE_OUTPUT_FUNCTION = """
@@ -15,12 +15,7 @@ def output_function(input: DataObj) -> np.ndarray:
     return input.np_array / 2
 """
 
-PROJECT_SCHEMA_PATH = "./schema/project_schema.json"
-with open(PROJECT_SCHEMA_PATH, 'r') as f:
-    project_schema = json.load(f)
-
 DEFAULT_CONFIG = { 'name': "DEFAULT", "hidden_layers": [{"size": [100], "type":"Dense"}], 'epochs': 10 }
-validate(DEFAULT_CONFIG, project_schema)
 
 def estimate_training_time(total_nodes: int, num_epochs: int, num_training_samples: int = 1000, time_per_unit: float = 1e-4) -> float:
     total_computations = total_nodes * num_training_samples * num_epochs
@@ -30,19 +25,18 @@ def estimate_training_time(total_nodes: int, num_epochs: int, num_training_sampl
 
 def create_project_files():
     try:
-        os.mkdir('./project_files')
+        os.mkdir(root("/project_files"))
     except OSError:
         pass
 
 def get_projects() -> list[str]:
     create_project_files()
-    files = os.listdir('./project_files')
+    files = os.listdir(root("/project_files"))
     return files
 
 def get_project_config(project_name: str) -> dict:
-    with open(f'./project_files/{project_name}/config.json', 'r') as f:
+    with open(root(f'/project_files/{project_name}/config.json'), 'r') as f:
         data = json.load(f)
-    validate(data, project_schema)
     return data
 
 def new_project(project_name: str):
@@ -50,8 +44,8 @@ def new_project(project_name: str):
     this_config['name'] = project_name
     create_project_files()
     try:
-        os.mkdir(f'./project_files/{project_name}')
-        with open(f'./project_files/{project_name}/config.json', 'w') as f:
+        os.mkdir(root(f'/project_files/{project_name}'))
+        with open(root(f'/project_files/{project_name}/config.json'), 'w') as f:
             json.dump(this_config, f)
         return "completed", 200
     except OSError or PermissionError as e:
@@ -60,16 +54,16 @@ def new_project(project_name: str):
 def set_project_config(config: dict):
     name = config['name']
     output_based = config['input']['type'] == 'Function of the output'
-    with open(f'./project_files/{name}/config.json', 'w') as f:
+    with open(root(f'/project_files/{name}/config.json'), 'w') as f:
         json.dump(config, f)
-    if output_based and not os.path.exists(f'./project_files/{name}/output_function.py'):
-        with open(f'./project_files/{name}/output_function.py', 'w') as f:
+    if output_based and not os.path.exists(root(f'/project_files/{name}/output_function.py')):
+        with open(root(f'/project_files/{name}/output_function.py'), 'w') as f:
             f.write(EXAMPLE_OUTPUT_FUNCTION)
     
 def delete_project(project_name: str):
     create_project_files()
     try:
-        shutil.rmtree(f'./project_files/{project_name}')
+        shutil.rmtree(root(f'/project_files/{project_name}'))
         return "completed", 200
     except OSError or PermissionError as e:
         return f"Error: {e}", 500
@@ -96,4 +90,4 @@ def train_project(project_name: str):
     return {"data":"completed"}, 200
 
 def has_associated_model(project_name: str) -> bool:
-    return os.path.exists(f'./project_files/{project_name}/{project_name}.keras')
+    return os.path.exists(root(f'/project_files/{project_name}/{project_name}.keras'))

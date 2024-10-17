@@ -65,4 +65,4 @@ def handle_has_associated_model():
     return {'data':has_associated_model(name)}
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='127.0.0.1', port=5000)

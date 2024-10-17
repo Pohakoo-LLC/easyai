@@ -5,6 +5,7 @@ import shutil
 import numpy as np
 from PIL import Image
 import json
+from helpers.neural_nets import root
 
 # URLs for the MNIST dataset
 urls = {
@@ -15,7 +16,7 @@ urls = {
 }
 
 # Directory to save the dataset
-dataset_dir = "mnist_dataset"
+dataset_dir = root("mnist_dataset")
 images_dir = os.path.join(dataset_dir, "images")
 os.makedirs(images_dir, exist_ok=True)
 

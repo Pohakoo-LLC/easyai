@@ -40,6 +40,8 @@ next-env.d.ts
 **/__pycache__/
 
 # misc
-/backend/project_files/
 /project_files/
-/backend/helpers/mnist_dataset/
+/dist
+backend/
+!backend/main.py
+!backend/helpers/

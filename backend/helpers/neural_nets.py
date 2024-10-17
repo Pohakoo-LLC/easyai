@@ -10,6 +10,38 @@ import os
 from PIL import Image
 from typing import Optional, Dict, Tuple
 from enum import Enum
+import platform
+
+def get_app_storage_path():
+    """
+    Returns an appropriate storage path based on the operating system.
+    
+    :param app_name: The name of the application (used to create the directory).
+    :return: An absolute path string.
+    """
+    system = platform.system()
+    app_name = "Pohakoo/EasyAI"
+    
+    if system == 'Windows':
+        # Windows: Use the AppData folder for the current user
+        base_path = os.getenv('APPDATA', 'C:/Program Files')
+        return os.path.join(base_path, app_name)
+    
+    elif system == 'Darwin':
+        # macOS: Use ~/Library/Application Support for the current user
+        base_path = os.path.expanduser('~/Library/Application Support')
+        return os.path.join(base_path, app_name)
+    
+    elif system == 'Linux':
+        # Linux: Use ~/.local/share for the current user
+        base_path = os.path.expanduser('~/.local/share')
+        return os.path.join(base_path, app_name)
+    
+    else:
+        raise OSError(f"Unsupported operating system: {system}")
+
+def root(path:str):
+    return os.path.join(get_app_storage_path(), path)
 
 class DataType(Enum):
     COLOR_IMAGE = "img_col"
@@ -152,7 +184,7 @@ def start_training(config: Dict, batch_size: int = 32):
         print(f"Error during model training: {e}")
         return
 
-    project_path = os.path.join("project_files", config["name"])
+    project_path = os.path.join(root("/project_files"), config["name"])
     os.makedirs(project_path, exist_ok=True)
     model_path = os.path.join(project_path, f"{config['name']}.h5")
     model.save(model_path)
@@ -178,23 +210,3 @@ def predict(data_path: str, model_path: str, config: Dict):
 
 # Global text embedder
 text_embedder = TextEmbedder()
-
-if __name__ == "__main__":
-    # Example usage
-    config = {
-        "name": "example_model",
-        "input": {"type": "Color Image"},
-        "output": {"type": "Identification"},
-        "training_data_path": "path/to/training_data.json",
-        "epochs": 10,
-        "hidden_layers": [
-            {"type": "Convolution", "size": [3, 3], "config": {"filters": 32, "activation": "relu"}},
-            {"type": "Max pooling", "size": [2, 2]},
-            {"type": "Convolution", "size": [3, 3], "config": {"filters": 64, "activation": "relu"}},
-            {"type": "Max pooling", "size": [2, 2]},
-            {"type": "Dense", "size": [128]}
-        ]
-    }
-    start_training(config)
-    # prediction = predict("path/to/test_image.jpg", "path/to/saved_model.h5", config)
-    # print(f"Prediction: {prediction}")

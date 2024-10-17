@@ -1,2 +1,0 @@
-After editing the schema, go to the root and enter the command:
-npx json2ts schema/project_schema.json -o src/types/Project.ts

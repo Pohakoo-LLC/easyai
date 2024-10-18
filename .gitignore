@@ -38,11 +38,17 @@ next-env.d.ts
 # python
 /.venv
 **/__pycache__/
+/backend/
+!/backend/main.py
+!/backend/helpers/
+/venv
 
 # misc
-/project_files/
-/dist
-backend/
-!backend/main.py
-!backend/helpers/
-/venv
+/dist/
+**/*.exe
+
+# electron
+/electron_src/.next/
+/electron_src/backend/
+/electron_src/frontend
+/frontend_dist

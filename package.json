@@ -1,16 +1,20 @@
 {
   "name": "easyai",
-  "productName": "easyai",
+  "productName": "EasyAI",
   "version": "1.0.0",
   "private": true,
   "description": "EasyAI | Pohakoo",
-  "main": "index.js",
+  "main": "electron_src/index.js",
   "scripts": {
-    "dev": "next dev",
+    "dev:frontend": "next dev",
     "build:frontend": "next build",
-    "build:electron": "electron-builder",
+    "start:frontend": "next start",
+    "start:electron": "electron-forge start",
+    "package:electron": "electron-forge package",
+    "make:electron": "electron-forge make",
+    "build:electron": "electron-forge publish",
     "build:all": "npm run build:frontend && npm run build:electron",
-    "start": "next start",
+    "start:all": "npm run start:frontend && npm run start:electron",
     "lint": "next lint"
   },
   "dependencies": {
@@ -23,6 +27,7 @@
     "@types/react-router-dom": "^5.3.3",
     "clsx": "^2.1.1",
     "electron-squirrel-startup": "^1.0.1",
+    "http-server": "^14.1.1",
     "json-schema-to-typescript": "^15.0.2",
     "next": "^14.2.7",
     "react": "^18.3.1",
@@ -32,34 +37,21 @@
     "sharp": "^0.33.5"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^7.5.0",
+    "@electron-forge/maker-deb": "^7.5.0",
+    "@electron-forge/maker-rpm": "^7.5.0",
+    "@electron-forge/maker-squirrel": "^7.5.0",
+    "@electron-forge/maker-zip": "^7.5.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.5.0",
+    "@electron-forge/plugin-fuses": "^7.5.0",
+    "@electron/fuses": "^1.8.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "electron": "33.0.1",
-    "electron-builder": "^25.1.8",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
-  },
-  "build": {
-    "appId": "com.pohakoo.easyai",
-    "productName": "EasyAI App",
-    "files": [
-      "electron/**/*",
-      "backend/dist/**/*",
-      ".next/**/*",
-      "nextjs-server.js",
-      "index.js"
-    ],
-    "mac": {
-      "target": "dmg"
-    },
-    "win": {
-      "target": "nsis"
-    },
-    "linux": {
-      "target": "AppImage"
-    }
   },
   "author": {
     "name": "Pohakoo, LLC",

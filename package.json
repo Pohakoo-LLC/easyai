@@ -53,6 +53,25 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   },
+  "build": {
+    "appId": "com.pohakoo.easyai",
+    "productName": "EasyAI",
+    "files": [
+      "electron_src/**/*"
+    ],
+    "directories": {
+      "output": "out"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": true,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": false
+    }
+  },
   "author": {
     "name": "Pohakoo, LLC",
     "url": "https://pohakoo.com",

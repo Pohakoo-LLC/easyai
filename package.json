@@ -57,7 +57,8 @@
     "appId": "com.pohakoo.easyai",
     "productName": "EasyAI",
     "files": [
-      "electron_src/**/*"
+      "electron_src/**/*",
+      "node_modules/**/*"
     ],
     "directories": {
       "output": "out"

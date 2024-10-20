@@ -2,8 +2,8 @@
 
 const { app, BrowserWindow } = require('electron');
 const path = require('node:path');
-const { execFile, spawn } = require('node:child_process');
 const fs = require('node:fs');
+const { execFile, exec } = require('node:child_process');
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
@@ -11,6 +11,7 @@ if (require('electron-squirrel-startup')) {
 let backendProcess;
 let nextServerProcess;
 const dir = __dirname;
+console.log('testt');
 
 const createWindow = () => {
   // Create the browser window.
@@ -24,36 +25,35 @@ const createWindow = () => {
     darkTheme: true,
   });
 
-  mainWindow.setMenu(null);
+  // mainWindow.setMenu(null);
   mainWindow.loadURL('http://localhost:3000');
-
 }
 
 function startNextServer() {
   const nextServerPath = path.join(dir, 'frontend');
-  console.log(`Attempting to start Next.js server from path: ${nextServerPath}`);
-  nextServerProcess = spawn('npm', ['run', 'start:frontend'], { cwd: nextServerPath });
+  const httpServerPath = path.join(dir, 'node_modules/.bin/http-server.cmd');
+  nextServerProcess = exec(`${httpServerPath} --cors -p 3000 ${nextServerPath}`);
+  // nextServerProcess.stdout.on('data', (data) => {
+  //   console.log(`Next.js server stdout: ${data}`);
+  // });
   nextServerProcess.on('error', (err) => {
     console.warn(`Error starting Next.js server: ${err.message}`);
   })
+  nextServerProcess.on('exit', (code) => {
+    console.log(`Next.js server exited with code ${code}`);
+  });
 }
 
 // Function to start the Python backend
 function startBackend() {
+  console.log(`Attempting to start backend from path: ${dir}`);
   const backendPath = path.join(dir, 'backend/main.exe');
-  backendProcess = execFile(backendPath, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error starting backend: ${error.message}`);
-      console.error(`stderr: ${stderr}`);
-      return;
-    }
-    console.log(`Backend stdout: ${stdout}`);
-  });
+  backendProcess = execFile(backendPath);
 }
 
 app.on('ready', () => {
+  startNextServer();  // Start the Next.js server
   startBackend();  // Start the Python backend
-  startNextServer(); // Host the Next.js app
   createWindow();  // Create the Electron window
 });
 
@@ -62,6 +62,7 @@ app.on('window-all-closed', () => {
   if (nextServerProcess) nextServerProcess.kill();  // Ensure Next.js server is terminated
   if (process.platform !== 'darwin') app.quit();
   app.exit();
+  app.quit();
 });
 
 app.on('activate', () => {

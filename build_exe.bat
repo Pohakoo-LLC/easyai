@@ -1,4 +1,4 @@
-:: @echo off
+@echo off
 setlocal
 
 :: Prompt user for a custom Python path, or use the detected one
@@ -58,12 +58,10 @@ if not exist "venv" (
     exit /b 1
 )
 
-set "VENV_EXECUTABLE=venv\Scripts\python.exe -m "
-
 :: Check if requirements.txt exists and install requirements
 if exist "requirements.txt" (
     echo Installing packages from requirements.txt...
-    %VENV_EXECUTABLE% pip install -r requirements.txt
+    venv\Scripts\python -m pip install -r requirements.txt
     if %errorlevel% neq 0 (
         echo Failed to install the required packages.
         exit /b 1
@@ -75,7 +73,7 @@ if exist "requirements.txt" (
 :: Move to the backend directory and package the Python application
 cd backend
 echo Running PyInstaller to package main.py...
-%VENV_EXECUTABLE% pyinstaller --onefile main.py
+..\venv\Scripts\pyinstaller --onefile main.py
 
 if %errorlevel% neq 0 (
     echo PyInstaller failed.
@@ -83,11 +81,11 @@ if %errorlevel% neq 0 (
 )
 
 :: Move back to the project root directory
-cd ../
+cd ..
 
 :: Install Node.js dependencies
 echo Installing npm dependencies...
-npm install
+call npm install --suppress-warnings
 
 if %errorlevel% neq 0 (
     echo npm install failed.
@@ -96,16 +94,21 @@ if %errorlevel% neq 0 (
 
 :: Build the frontend
 echo Building frontend...
-npm run build:frontend
+call npm run build:frontend
 
 if %errorlevel% neq 0 (
     echo Frontend build failed.
     exit /b 1
 )
 
+:: Ensure the destination directory exists
+if not exist "electron_src\backend" (
+    mkdir "electron_src\backend"
+)
+
 :: Copy the main.exe to the electron_src/backend directory
 echo Copying main.exe to electron_src/backend/...
-xcopy backend\dist\main.exe electron_src\backend\main.exe /Y
+xcopy "backend\dist\main.exe" "electron_src\backend\main.exe" /Y /F
 
 if %errorlevel% neq 0 (
     echo Failed to copy main.exe.
@@ -114,7 +117,16 @@ if %errorlevel% neq 0 (
 
 :: Copy frontend build to electron_src/frontend directory
 echo Copying frontend files to electron_src/frontend/...
-xcopy frontend\* electron_src\frontend\ /E /H /Y
+xcopy frontend_dist\* electron_src\frontend\ /E /H /Y
+
+if %errorlevel% neq 0 (
+    echo Failed to copy frontend files.
+    exit /b 1
+)
+
+:: Copy frontend build to electron_src/frontend directory
+echo Copying node packages to electron_src/node_modules/...
+xcopy node_modules\* electron_src\node_modules\ /E /H /Y
 
 if %errorlevel% neq 0 (
     echo Failed to copy frontend files.
@@ -123,7 +135,7 @@ if %errorlevel% neq 0 (
 
 :: Build the Electron app
 echo Building the Electron application...
-npm run build:electron
+call npm run build:electron
 
 if %errorlevel% neq 0 (
     echo Electron build failed.

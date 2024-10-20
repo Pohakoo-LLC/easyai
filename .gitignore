@@ -53,3 +53,5 @@ next-env.d.ts
 /electron_src/frontend
 /frontend_dist
 /electron_src/node_modules
+electron_src/package-lock.json
+electron_src/package.json

@@ -108,7 +108,7 @@ if not exist "electron_src\backend" (
 
 :: Copy the main.exe to the electron_src/backend directory
 echo Copying main.exe to electron_src/backend/...
-xcopy "backend\dist\main.exe" "electron_src\backend\main.exe" /Y /F
+xcopy "backend\dist\main.exe" "electron_src\backend\main.exe*" /Y /F
 
 if %errorlevel% neq 0 (
     echo Failed to copy main.exe.
@@ -124,14 +124,12 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-:: Copy frontend build to electron_src/frontend directory
-echo Copying node packages to electron_src/node_modules/...
-xcopy node_modules\* electron_src\node_modules\ /E /H /Y
-
-if %errorlevel% neq 0 (
-    echo Failed to copy frontend files.
-    exit /b 1
-)
+:: Initialize a new npm project in the electron_src directory and install http-server
+echo Initializing npm project in electron_src...
+cd electron_src
+call npm init -y
+call npm install http-server
+cd ..
 
 :: Build the Electron app
 echo Building the Electron application...

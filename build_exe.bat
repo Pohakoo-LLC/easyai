@@ -1,4 +1,4 @@
-@echo off
+:: @echo off
 setlocal
 
 :: Prompt user for a custom Python path, or use the detected one
@@ -58,13 +58,12 @@ if not exist "venv" (
     exit /b 1
 )
 
-:: Activate the virtual environment
-call venv\Scripts\activate
+set "VENV_EXECUTABLE=venv\Scripts\python.exe -m "
 
 :: Check if requirements.txt exists and install requirements
 if exist "requirements.txt" (
     echo Installing packages from requirements.txt...
-    pip install -r requirements.txt
+    %VENV_EXECUTABLE% pip install -r requirements.txt
     if %errorlevel% neq 0 (
         echo Failed to install the required packages.
         exit /b 1
@@ -73,13 +72,10 @@ if exist "requirements.txt" (
     echo requirements.txt not found. Skipping package installation.
 )
 
-:: Deactivate the virtual environment
-deactivate
-
 :: Move to the backend directory and package the Python application
 cd backend
 echo Running PyInstaller to package main.py...
-pyinstaller --onefile main.py
+%VENV_EXECUTABLE% pyinstaller --onefile main.py
 
 if %errorlevel% neq 0 (
     echo PyInstaller failed.

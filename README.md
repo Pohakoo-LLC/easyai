@@ -28,10 +28,20 @@ Example `labels.json`:
 ```
 
 ## Quick Start (Windows)
+### Method 1 (build executable)
 1. Clone the repo and cd into the folder in Powershell
 2. Run `./build_exe` (will take 5 - 20 minutes)
 3. If the build was unsuccessful, it will tell you the problem. Fix and repeat step 2.
 4. Run the executable at out/EasyAI-win32-x64/EasyAI.exe
+### Method 2 (run code)
+1. Clone the repo and cd into the folder in Powershell
+2. Create a venv with `python -m venv .venv` and `.venv/Scripts/activate`
+3. Install the required Python packages with `pip install -r requirements.txt`
+4. Run the backend with `python backend/main.py`
+5. Open a new Powershell window and cd into the repo folder
+6. Install npm packages with `npm i`
+7. Run the project with `npm run build` and `npm run start`
+8. Open `http://localhost:3000` in your browser
 
 ### Why not just provide a downloadable executable?
 You should pretty much never just download an executable from the internet and run it, even if you trust the source. This script allows you to see all the source code and then build the exe yourself easily, at the cost of having to download Python and NPM, which may be a hassle for non-programmers. This is why open-source code is so amazing, there's no trust required.

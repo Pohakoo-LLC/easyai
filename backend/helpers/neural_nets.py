@@ -186,7 +186,7 @@ def start_training(config: Dict, batch_size: int = 32):
 
     project_path = os.path.join(root("/project_files"), config["name"])
     os.makedirs(project_path, exist_ok=True)
-    model_path = os.path.join(project_path, f"{config['name']}.h5")
+    model_path = os.path.join(project_path, f"{config['name']}.keras")
     model.save(model_path)
     print(f"Model saved to {model_path}")
 

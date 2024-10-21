@@ -5,7 +5,7 @@ import shutil
 import numpy as np
 from PIL import Image
 import json
-from helpers.neural_nets import root
+from neural_nets import root
 
 # URLs for the MNIST dataset
 urls = {

@@ -34,6 +34,7 @@ Example `labels.json`:
 3. If the build was unsuccessful, it will tell you the problem. Fix and repeat step 2.
 4. Run the executable at out/EasyAI-win32-x64/EasyAI.exe
 ### Method 2 (run code)
+0. Delete everything between the two brackets in the `next.config.mjs` file
 1. Clone the repo and cd into the folder in Powershell
 2. Create a venv with `python -m venv .venv` and `.venv/Scripts/activate`
 3. Install the required Python packages with `pip install -r requirements.txt`

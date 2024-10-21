@@ -129,6 +129,8 @@ echo Initializing npm project in electron_src...
 cd electron_src
 call npm init -y
 call npm install http-server
+del package.json
+del package-lock.json
 cd ..
 
 :: Build the Electron app
